@@ -2,6 +2,7 @@ package com.woowapractice.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +16,9 @@ class ApiApplicationAcceptanceTest {
   @Autowired private ApplicationContext applicationContext;
 
   @Test
-  void 애플리케이션_컨텍스트를_실행한다() {
+  @DisplayName("애플리케이션 컨텍스트를 실행한다")
+  void applicationContext_starts_successfully() {
+    // then
     assertThat(applicationContext).isNotNull();
   }
 }
