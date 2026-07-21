@@ -34,6 +34,7 @@ This plan implements only the first independently testable vertical slice. Follo
 ```text
 settings.gradle                         Gradle module registry
 build.gradle                            Shared Java, test, formatting conventions
+config/checkstyle/checkstyle.xml        Woowa-style structural checks
 gradle/wrapper/*                        Pinned Gradle 9.6.1 wrapper
 domain/                                 Problem aggregate and stage enum
 application/                            Catalog query and synchronization use cases
@@ -50,6 +51,7 @@ problems/                               Version-controlled problem definitions
 **Files:**
 - Create: `settings.gradle`
 - Create: `build.gradle`
+- Create: `config/checkstyle/checkstyle.xml`
 - Create: `domain/build.gradle`
 - Create: `application/build.gradle`
 - Create: `infrastructure/build.gradle`
@@ -114,6 +116,7 @@ Create root `build.gradle`:
 ```groovy
 plugins {
     id 'java'
+    id 'checkstyle'
     id 'org.springframework.boot' version '4.1.0' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
     id 'com.diffplug.spotless' version '8.0.0' apply false
@@ -130,6 +133,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'checkstyle'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'com.diffplug.spotless'
 
@@ -164,6 +168,11 @@ subprojects {
         useJUnitPlatform()
     }
 
+    checkstyle {
+        toolVersion = '10.21.4'
+        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+    }
+
     spotless {
         java {
             googleJavaFormat()
@@ -174,6 +183,8 @@ subprojects {
     }
 }
 ```
+
+Create `config/checkstyle/checkstyle.xml` with `Checker` and `TreeWalker` modules for `AvoidStarImport`, `NeedBraces`, `OneStatementPerLine`, `EqualsHashCode`, `EmptyStatement`, and `OuterTypeFilename`. Spotless owns whitespace and import ordering; Checkstyle owns structural rules, so do not duplicate formatting checks between the tools.
 
 Use these module dependencies:
 
@@ -301,9 +312,9 @@ Generate and pin the wrapper with `gradle wrapper --gradle-version 9.6.1`.
 
 - [ ] **Step 4: Run the foundation verification**
 
-Run: `./gradlew :api:test --tests '*ApiApplicationAcceptanceTest' spotlessCheck`
+Run: `./gradlew :api:test --tests '*ApiApplicationAcceptanceTest' spotlessCheck checkstyleMain checkstyleTest`
 
-Expected: PASS with one application-context test and no formatting violations.
+Expected: PASS with one application-context test and no formatting or structural convention violations.
 
 - [ ] **Step 5: Commit the foundation**
 
@@ -658,7 +669,7 @@ Annotate controller operations with `@Operation` and declare 200, 400, and 404 r
 
 - [ ] **Step 5: Run all API tests and formatting**
 
-Run: `./gradlew :api:test spotlessCheck`
+Run: `./gradlew :api:test spotlessCheck checkstyleMain checkstyleTest`
 
 Expected: PASS for context, persistence, list, detail, not-found, invalid-stage, OpenAPI document, and Swagger UI scenarios.
 
@@ -823,7 +834,7 @@ Create `README.md` with this exact content. Keep `tests/.gitkeep` until the grad
 
 - [ ] **Step 7: Run the complete first-slice verification**
 
-Run: `./gradlew clean test spotlessCheck`
+Run: `./gradlew clean test spotlessCheck checkstyleMain checkstyleTest`
 
 Expected: PASS for all modules, RestAssured catalog scenarios, loader validation, and transactional synchronization.
 
