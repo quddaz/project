@@ -160,8 +160,12 @@ MVP의 용량 목표는 한 서버에서 채점 컨테이너 10개를 동시에 
 - `GET /api/me/submissions?cursor=...`
 - `GET /api/me/progress`
 - `/oauth2/authorization/github`
+- `GET /v3/api-docs`: OpenAPI 3.1 JSON 명세
+- `GET /swagger-ui/index.html`: Swagger UI
 
 요청 및 응답 DTO는 presentation 계층에만 둔다. 애플리케이션 서비스는 Command, Query, Result 모델을 사용해 HTTP와 뷰에 의존하지 않는다. 제출 상태 조회 API는 소유자만 접근할 수 있다.
+
+springdoc-openapi로 REST 명세를 애플리케이션에서 생성한다. 각 API는 요약, 요청 조건, 성공 응답, 공통 오류 응답, enum 허용 값을 문서화한다. Swagger UI에서 GitHub OAuth가 필요한 API의 인증 요구사항을 확인할 수 있게 하고, 운영 환경에서도 문서와 UI를 제공하되 채점 내부 API나 관리용 엔드포인트는 문서에 노출하지 않는다.
 
 ### 최소 화면
 
@@ -222,6 +226,7 @@ TDD의 바깥 루프는 RestAssured 기반 인수 테스트다. 인수 테스트
 - 사용자는 대기, 실행, 통과, 실패, 플랫폼 오류 상태와 테스트별 결과를 확인할 수 있다.
 - API와 워커를 별도로 실행하고 워커 인스턴스를 추가해 처리량을 확장할 수 있다.
 - RestAssured 인수 테스트와 MySQL 작업 선점 동시성 테스트가 통과한다.
+- `/v3/api-docs`와 Swagger UI가 제공되고 공개 REST API 및 공통 오류 응답이 명세에 포함된다.
 
 ## 16. 후속 범위
 
@@ -244,4 +249,4 @@ TDD의 바깥 루프는 RestAssured 기반 인수 테스트다. 인수 테스트
 - 데이터 정합성, 보안, 확장성에 영향을 주는 결정
 - 테스트 전략과 운영 장애 대응 방식의 중요한 변경
 
-단순 라이브러리 패치, 코드 포맷, 지역적인 리팩터링은 ADR 대상이 아니다. 초기 결정은 `docs/adr/README.md`의 색인과 ADR 0001~0007에 기록한다.
+단순 라이브러리 패치, 코드 포맷, 지역적인 리팩터링은 ADR 대상이 아니다. 초기 결정은 `docs/adr/README.md`의 색인과 ADR 0001~0008에 기록한다.

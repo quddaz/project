@@ -27,3 +27,4 @@
 | [0005](0005-acceptance-test-led-tdd.md) | RestAssured 중심 인수 테스트 TDD | Accepted |
 | [0006](0006-git-managed-problem-definitions.md) | Git 기반 문제 정의 관리 | Accepted |
 | [0007](0007-ten-concurrent-gradings.md) | 단일 서버 동시 채점 10건 | Accepted |
+| [0008](0008-openapi-and-swagger-ui.md) | OpenAPI 명세와 Swagger UI | Accepted |
