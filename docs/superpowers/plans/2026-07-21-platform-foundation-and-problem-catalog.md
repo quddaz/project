@@ -19,6 +19,7 @@
 - Store enums as strings, store time in UTC, and change schemas only through Flyway.
 - Keep policies inline until branching or genuine replaceability makes extraction useful.
 - Package root is `com.woowapractice`.
+- All code must follow `docs/conventions/backend-style-guide.md`.
 - Commit after every task passes its stated verification.
 
 ## Scope Decomposition
