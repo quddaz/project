@@ -1,0 +1,3 @@
+rootProject.name = 'woowacourse-practice'
+
+include 'domain', 'application', 'infrastructure', 'api', 'grading', 'worker', 'problem-sync'
