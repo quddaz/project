@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -80,7 +81,14 @@ public class Problem {
   }
 
   public void addVersion(ProblemVersion version) {
+    if (version.isAssigned()) {
+      throw new ProblemDomainException(ProblemErrorCode.PROBLEM_VERSION_ALREADY_ASSOCIATED);
+    }
     version.assignTo(this);
     versions.add(version);
+  }
+
+  public List<ProblemVersion> getVersions() {
+    return Collections.unmodifiableList(versions);
   }
 }

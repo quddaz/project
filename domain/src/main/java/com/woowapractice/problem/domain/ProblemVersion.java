@@ -60,4 +60,8 @@ public class ProblemVersion {
   void assignTo(Problem problem) {
     this.problem = problem;
   }
+
+  boolean isAssigned() {
+    return problem != null;
+  }
 }

@@ -24,23 +24,27 @@ class ProblemCatalogPersistenceAcceptanceTest {
 
   @Test
   @DisplayName("활성 문제를 차수와 표시 순서로 조회한다")
-  void findActiveByStage_activeProblemExists_returnsProblems() {
+  void findActiveByStage_activeProblemsExist_returnsProblemsInDisplayOrder() {
     // given
-    Problem problem =
-        Problem.create(
-            "racing-car",
-            "자동차 경주",
-            ProblemStage.ROUND_2,
-            1,
-            "기능 요구사항",
-            "https://github.com/example/java-racingcar");
-    problem.addVersion(ProblemVersion.create(1, 21, "racing-car/v1", "checksum"));
-    problemCatalog.save(problem);
+    problemCatalog.save(ProblemFixture.problem("racing-car", ProblemStage.ROUND_2, 2));
+    problemCatalog.save(ProblemFixture.problem("lotto", ProblemStage.ROUND_2, 1));
+    problemCatalog.save(ProblemFixture.problem("baseball", ProblemStage.ROUND_1, 1));
 
     // when
     List<Problem> result = problemCatalog.findActiveByStage(ProblemStage.ROUND_2);
 
     // then
-    assertThat(result).extracting(Problem::getSlug).containsExactly("racing-car");
+    assertThat(result).extracting(Problem::getSlug).containsExactly("lotto", "racing-car");
+  }
+
+  private static class ProblemFixture {
+
+    private static Problem problem(String slug, ProblemStage stage, int displayOrder) {
+      Problem problem =
+          Problem.create(
+              slug, "문제 제목", stage, displayOrder, "기능 요구사항", "https://github.com/example/" + slug);
+      problem.addVersion(ProblemVersion.create(1, 21, slug + "/v1", "checksum"));
+      return problem;
+    }
   }
 }
