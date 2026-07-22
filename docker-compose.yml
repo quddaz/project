@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: woowapractice
+      MYSQL_USER: woowapractice
+      MYSQL_PASSWORD: ${DB_PASSWORD:-woowapractice}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/woowapractice?serverTimezone=UTC
+      DB_USERNAME: woowapractice
+      DB_PASSWORD: ${DB_PASSWORD:-woowapractice}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:?set GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:?set GITHUB_CLIENT_SECRET}
+      SECURITY_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: ["java", "-Dloader.main=com.woowapractice.grading.GradingWorkerApplication", "-jar", "/app/app.jar"]
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/woowapractice?serverTimezone=UTC
+      DB_USERNAME: woowapractice
+      DB_PASSWORD: ${DB_PASSWORD:-woowapractice}
+      SECURITY_ENABLED: "false"
+      GRADING_DOCKER_IMAGE: ${GRADING_DOCKER_IMAGE:-woowapractice/grader:java21}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql-data:

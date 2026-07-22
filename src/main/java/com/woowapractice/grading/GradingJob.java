@@ -40,6 +40,9 @@ public class GradingJob {
   @Column(name = "claimed_at")
   private Instant claimedAt;
 
+  @Column(name = "lease_expires_at")
+  private Instant leaseExpiresAt;
+
   @Column(name = "worker_id", length = 100)
   private String workerId;
 
@@ -59,11 +62,17 @@ public class GradingJob {
     return new GradingJob(submission);
   }
 
-  public void claim(String workerId) {
+  public void claim(String workerId, long leaseSeconds) {
     this.status = GradingJobStatus.RUNNING;
     this.claimedAt = Instant.now();
+    this.leaseExpiresAt = Instant.now().plusSeconds(leaseSeconds);
     this.workerId = workerId;
     this.attempt++;
     this.submission.start();
+  }
+
+  public void complete() {
+    this.status = GradingJobStatus.COMPLETED;
+    this.leaseExpiresAt = null;
   }
 }

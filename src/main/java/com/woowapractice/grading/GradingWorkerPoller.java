@@ -19,11 +19,15 @@ public class GradingWorkerPoller {
   private final GradingWorkerService gradingWorkerService;
   private final String workerId = UUID.randomUUID().toString();
 
+  @org.springframework.beans.factory.annotation.Value("${grading.worker.lease-seconds:180}")
+  private long leaseSeconds;
+
   @Scheduled(fixedDelayString = "${grading.worker.poll-ms:1000}")
   public void poll() {
     GradingJob job = claimNext();
     if (job != null) {
       gradingWorkerService.execute(job.getSubmission());
+      complete(job);
     }
   }
 
@@ -34,9 +38,15 @@ public class GradingWorkerPoller {
             GradingJobStatus.QUEUED, Instant.now())
         .map(
             job -> {
-              job.claim(workerId);
+              job.claim(workerId, leaseSeconds);
               return gradingJobRepository.save(job);
             })
         .orElse(null);
+  }
+
+  @Transactional
+  protected void complete(GradingJob job) {
+    job.complete();
+    gradingJobRepository.save(job);
   }
 }

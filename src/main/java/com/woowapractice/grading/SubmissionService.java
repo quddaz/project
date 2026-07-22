@@ -28,17 +28,21 @@ public class SubmissionService {
   private final GradingJobRepository gradingJobRepository;
   private final TestResultRepository testResultRepository;
   private final GitHubRepositoryClient gitHubRepositoryClient;
+  private final GitHubRepositoryValidator gitHubRepositoryValidator;
   private final UserRepository userRepository;
 
   @Transactional
   public Submission create(String slug, String repositoryUrl, String commitSha) {
     validateRepository(repositoryUrl);
     String resolvedCommitSha = resolveCommitSha(repositoryUrl, commitSha);
-    ProblemVersion version =
-        problemCatalog
-            .findActiveBySlug(slug)
-            .map(problem -> problem.currentVersion())
-            .orElseThrow(() -> new ProblemNotFoundException(slug));
+    var problem =
+        problemCatalog.findActiveBySlug(slug).orElseThrow(() -> new ProblemNotFoundException(slug));
+    ProblemVersion version = problem.currentVersion();
+    String githubLogin = currentGithubLogin();
+    if (githubLogin != null) {
+      gitHubRepositoryValidator.validate(
+          repositoryUrl, problem.getStarterRepositoryUrl(), githubLogin);
+    }
     Submission submission =
         submissionRepository.save(
             Submission.create(currentUser(), version, repositoryUrl, resolvedCommitSha));
@@ -88,5 +92,14 @@ public class SubmissionService {
               return user;
             })
         .orElseGet(() -> userRepository.save(User.create(githubId, login, name)));
+  }
+
+  private String currentGithubLogin() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null
+        || !(authentication.getPrincipal() instanceof OAuth2User principal)) {
+      return null;
+    }
+    return String.valueOf(principal.getAttribute("login"));
   }
 }

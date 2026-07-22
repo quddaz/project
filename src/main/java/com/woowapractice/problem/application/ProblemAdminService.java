@@ -4,6 +4,7 @@ import com.woowapractice.problem.domain.Problem;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,23 @@ public class ProblemAdminService {
         checksum);
     problemCatalog.save(problem);
     return ProblemDetail.from(problem);
+  }
+
+  @Transactional
+  public ProblemDetail publishVersion(
+      String slug, int version, int javaVersion, String applicationTestSource) {
+    testSourceValidator.validate(applicationTestSource);
+    Problem problem =
+        problemCatalog.findBySlug(slug).orElseThrow(() -> new ProblemNotFoundException(slug));
+    String checksum = checksum(applicationTestSource);
+    problem.publishVersion(
+        version, javaVersion, "db:" + slug + "/v" + version, applicationTestSource, checksum);
+    problemCatalog.save(problem);
+    return ProblemDetail.from(problem);
+  }
+
+  public List<ProblemDetail> findAll() {
+    return problemCatalog.findAll().stream().map(ProblemDetail::from).toList();
   }
 
   private String checksum(String source) {

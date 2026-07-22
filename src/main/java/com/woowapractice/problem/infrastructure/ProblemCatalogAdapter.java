@@ -15,6 +15,11 @@ public class ProblemCatalogAdapter implements ProblemCatalog {
   private final JpaProblemRepository problemRepository;
 
   @Override
+  public List<Problem> findAll() {
+    return problemRepository.findAllByOrderByIdAsc();
+  }
+
+  @Override
   public List<Problem> findActiveByStage(ProblemStage stage) {
     return problemRepository.findAllByActiveTrueAndStageOrderByDisplayOrderAscIdAsc(stage);
   }

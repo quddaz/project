@@ -44,6 +44,29 @@ public class HttpGitHubRepositoryClient implements GitHubRepositoryClient {
     }
   }
 
+  @Override
+  public GitHubRepositoryMetadata getRepository(String repositoryUrl) {
+    Matcher matcher = REPOSITORY.matcher(repositoryUrl);
+    if (!matcher.matches()) {
+      throw new InvalidRepositoryException();
+    }
+    try {
+      JsonNode repository =
+          get("https://api.github.com/repos/" + matcher.group(1) + "/" + matcher.group(2));
+      JsonNode parent = repository.get("parent");
+      return new GitHubRepositoryMetadata(
+          repository.path("owner").path("login").asText(),
+          repository.path("name").asText(),
+          repository.path("private").asBoolean(),
+          repository.path("fork").asBoolean(),
+          parent == null || parent.isNull() ? null : parent.path("full_name").asText());
+    } catch (GitHubClientException exception) {
+      throw exception;
+    } catch (Exception exception) {
+      throw new GitHubClientException("GitHub 저장소 정보를 조회하지 못했습니다.", exception);
+    }
+  }
+
   private JsonNode get(String url) throws Exception {
     HttpRequest request =
         HttpRequest.newBuilder(URI.create(url))

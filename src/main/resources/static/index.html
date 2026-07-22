@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Woowa Practice</title>
+  <style>
+    :root { font-family: Inter, Pretendard, sans-serif; color: #172033; background: #f5f7fa; }
+    body { margin: 0; } main { max-width: 960px; margin: auto; padding: 32px 20px 64px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 28px; }
+    h1 { margin: 0; font-size: 28px; } select, input, button { font: inherit; padding: 10px 12px; border: 1px solid #c8cfdb; }
+    button { background: #1769e0; color: white; border: 0; font-weight: 700; cursor: pointer; }
+    #problems { display: grid; gap: 12px; } article { background: white; border: 1px solid #d9dee8; padding: 18px; }
+    article h2 { margin: 0 0 8px; font-size: 18px; } form { display: grid; gap: 12px; margin-top: 16px; }
+    .status { margin-top: 18px; white-space: pre-wrap; } .error { color: #b42318; } .success { color: #147a42; }
+    .muted { color: #657087; font-size: 13px; }
+  </style>
+</head>
+<body><main>
+  <header><h1>Woowa Practice</h1><a href="/oauth2/authorization/github">GitHub 로그인</a></header>
+  <label>차수 <select id="stage"><option>ROUND_1</option><option>ROUND_2</option><option>ROUND_3</option><option>ROUND_4</option><option>ROUND_5</option><option>FINAL</option></select></label>
+  <section id="problems" aria-live="polite"></section>
+  <div id="status" class="status"></div>
+</main>
+<script>
+  const problems = document.querySelector('#problems');
+  const status = document.querySelector('#status');
+  async function loadProblems() {
+    const response = await fetch(`/api/problems?stage=${document.querySelector('#stage').value}`);
+    const body = await response.json();
+    problems.innerHTML = body.problems.map(problem => `
+      <article><h2>${escapeHtml(problem.title)}</h2><div class="muted">${problem.stage} · ${problem.slug}</div>
+      <form data-slug="${problem.slug}"><input name="repositoryUrl" type="url" placeholder="https://github.com/username/repository" required><input name="commitSha" minlength="40" maxlength="40" placeholder="커밋 SHA (선택)"><button>채점 제출</button></form></article>`).join('');
+  }
+  problems.addEventListener('submit', async event => {
+    event.preventDefault(); const form = event.target; const data = Object.fromEntries(new FormData(form));
+    try {
+      const response = await fetch(`/api/problems/${form.dataset.slug}/submissions`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      const body = await response.json(); if (!response.ok) throw new Error(body.message || '제출에 실패했습니다.');
+      status.className = 'status success'; status.textContent = `제출되었습니다. ID: ${body.id}\n결과: /api/submissions/${body.id}`;
+    } catch (error) { status.className = 'status error'; status.textContent = error.message; }
+  });
+  document.querySelector('#stage').addEventListener('change', loadProblems); loadProblems();
+  function escapeHtml(value) { return value.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
+</script></body></html>

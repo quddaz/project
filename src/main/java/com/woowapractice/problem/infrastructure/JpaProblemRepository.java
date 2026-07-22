@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 interface JpaProblemRepository extends JpaRepository<Problem, Long> {
 
+  List<Problem> findAllByOrderByIdAsc();
+
   List<Problem> findAllByActiveTrueAndStageOrderByDisplayOrderAscIdAsc(ProblemStage stage);
 
   @EntityGraph(attributePaths = "versions")

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface ProblemCatalog {
 
+  List<Problem> findAll();
+
   List<Problem> findActiveByStage(ProblemStage stage);
 
   Optional<Problem> findActiveBySlug(String slug);

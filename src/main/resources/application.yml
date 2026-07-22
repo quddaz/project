@@ -30,3 +30,4 @@ grading:
     timeout-seconds: ${GRADING_TIMEOUT_SECONDS:120}
   worker:
     poll-ms: ${GRADING_WORKER_POLL_MS:1000}
+    lease-seconds: ${GRADING_WORKER_LEASE_SECONDS:180}
