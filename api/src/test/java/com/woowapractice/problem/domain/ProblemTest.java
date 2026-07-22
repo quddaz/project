@@ -53,6 +53,21 @@ class ProblemTest {
         });
   }
 
+  @Test
+  @DisplayName("현재 문제 버전은 추가 순서와 관계없이 가장 높은 버전이다")
+  void currentVersion_versionsAddedOutOfOrder_returnsGreatestVersion() {
+    // given
+    Problem problem = ProblemFixture.problem("racing-car");
+    problem.addVersion(ProblemFixture.version(2));
+    problem.addVersion(ProblemFixture.version(1));
+
+    // when
+    ProblemVersion currentVersion = problem.currentVersion();
+
+    // then
+    assertThat(currentVersion.getVersion()).isEqualTo(2);
+  }
+
   private static class ProblemFixture {
 
     private static Problem problem(String slug) {

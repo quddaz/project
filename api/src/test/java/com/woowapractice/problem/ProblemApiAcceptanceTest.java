@@ -48,7 +48,11 @@ class ProblemApiAcceptanceTest {
 
   @AfterEach
   void tearDown() {
-    databaseCleaner.clean();
+    try {
+      databaseCleaner.clean();
+    } finally {
+      RestAssured.reset();
+    }
   }
 
   @Test
@@ -100,6 +104,19 @@ class ProblemApiAcceptanceTest {
     // when
     var response =
         given().queryParam("stage", "INVALID").when().get("/api/problems").then().statusCode(400);
+
+    // then
+    response
+        .body("code", equalTo("INVALID_STAGE"))
+        .body("fieldErrors[0].field", equalTo("stage"))
+        .body("traceId", not(emptyString()));
+  }
+
+  @Test
+  @DisplayName("차수가 없으면 안정적인 오류 코드를 반환한다")
+  void findAll_stageIsMissing_returnsInvalidStageError() {
+    // when
+    var response = given().when().get("/api/problems").then().statusCode(400);
 
     // then
     response

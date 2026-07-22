@@ -13,6 +13,7 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -89,7 +90,7 @@ public class Problem {
   }
 
   public ProblemVersion currentVersion() {
-    return versions.getLast();
+    return versions.stream().max(Comparator.comparingInt(ProblemVersion::getVersion)).orElseThrow();
   }
 
   public List<ProblemVersion> getVersions() {
