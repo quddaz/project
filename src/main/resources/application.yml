@@ -11,9 +11,19 @@ spring:
       hibernate.jdbc.time_zone: UTC
   flyway:
     enabled: true
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID:}
+            client-secret: ${GITHUB_CLIENT_SECRET:}
+            scope: read:user,repo
 springdoc:
   api-docs:
     version: openapi_3_1
+security:
+  enabled: ${SECURITY_ENABLED:true}
 grading:
   docker:
     image: ${GRADING_DOCKER_IMAGE:woowapractice/grader:java21}

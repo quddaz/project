@@ -3,9 +3,14 @@ package com.woowapractice.grading;
 import com.woowapractice.problem.application.ProblemCatalog;
 import com.woowapractice.problem.application.ProblemNotFoundException;
 import com.woowapractice.problem.domain.ProblemVersion;
+import com.woowapractice.user.User;
+import com.woowapractice.user.UserRepository;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +28,7 @@ public class SubmissionService {
   private final GradingJobRepository gradingJobRepository;
   private final TestResultRepository testResultRepository;
   private final GitHubRepositoryClient gitHubRepositoryClient;
+  private final UserRepository userRepository;
 
   @Transactional
   public Submission create(String slug, String repositoryUrl, String commitSha) {
@@ -34,7 +40,8 @@ public class SubmissionService {
             .map(problem -> problem.currentVersion())
             .orElseThrow(() -> new ProblemNotFoundException(slug));
     Submission submission =
-        submissionRepository.save(Submission.create(version, repositoryUrl, resolvedCommitSha));
+        submissionRepository.save(
+            Submission.create(currentUser(), version, repositoryUrl, resolvedCommitSha));
     gradingJobRepository.save(GradingJob.create(submission));
     return submission;
   }
@@ -62,5 +69,24 @@ public class SubmissionService {
       throw new InvalidRepositoryException();
     }
     return commitSha;
+  }
+
+  private User currentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null
+        || !(authentication.getPrincipal() instanceof OAuth2User principal)) {
+      return null;
+    }
+    String githubId = String.valueOf(principal.getAttribute("id"));
+    String login = String.valueOf(principal.getAttribute("login"));
+    String name = principal.getAttribute("name");
+    return userRepository
+        .findByGithubId(githubId)
+        .map(
+            user -> {
+              user.updateProfile(login, name);
+              return user;
+            })
+        .orElseGet(() -> userRepository.save(User.create(githubId, login, name)));
   }
 }

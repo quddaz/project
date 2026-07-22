@@ -1,6 +1,7 @@
 package com.woowapractice.grading;
 
 import com.woowapractice.problem.domain.ProblemVersion;
+import com.woowapractice.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,6 +31,10 @@ public class Submission {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "problem_version_id", nullable = false)
   private ProblemVersion problemVersion;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Column(name = "repository_url", nullable = false, length = 500)
   private String repositoryUrl;
@@ -61,6 +66,13 @@ public class Submission {
   public static Submission create(
       ProblemVersion problemVersion, String repositoryUrl, String commitSha) {
     return new Submission(problemVersion, repositoryUrl, commitSha);
+  }
+
+  public static Submission create(
+      User user, ProblemVersion problemVersion, String repositoryUrl, String commitSha) {
+    Submission submission = new Submission(problemVersion, repositoryUrl, commitSha);
+    submission.user = user;
+    return submission;
   }
 
   public void start() {
