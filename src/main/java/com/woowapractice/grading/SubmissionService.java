@@ -22,17 +22,19 @@ public class SubmissionService {
   private final SubmissionRepository submissionRepository;
   private final GradingJobRepository gradingJobRepository;
   private final TestResultRepository testResultRepository;
+  private final GitHubRepositoryClient gitHubRepositoryClient;
 
   @Transactional
   public Submission create(String slug, String repositoryUrl, String commitSha) {
-    validateRepository(repositoryUrl, commitSha);
+    validateRepository(repositoryUrl);
+    String resolvedCommitSha = resolveCommitSha(repositoryUrl, commitSha);
     ProblemVersion version =
         problemCatalog
             .findActiveBySlug(slug)
             .map(problem -> problem.currentVersion())
             .orElseThrow(() -> new ProblemNotFoundException(slug));
     Submission submission =
-        submissionRepository.save(Submission.create(version, repositoryUrl, commitSha));
+        submissionRepository.save(Submission.create(version, repositoryUrl, resolvedCommitSha));
     gradingJobRepository.save(GradingJob.create(submission));
     return submission;
   }
@@ -46,10 +48,19 @@ public class SubmissionService {
     return testResultRepository.findAllBySubmissionIdOrderByIdAsc(id);
   }
 
-  private void validateRepository(String repositoryUrl, String commitSha) {
-    if (!GITHUB_REPOSITORY.matcher(repositoryUrl).matches()
-        || !COMMIT_SHA.matcher(commitSha).matches()) {
+  private void validateRepository(String repositoryUrl) {
+    if (!GITHUB_REPOSITORY.matcher(repositoryUrl).matches()) {
       throw new InvalidRepositoryException();
     }
+  }
+
+  private String resolveCommitSha(String repositoryUrl, String commitSha) {
+    if (commitSha == null || commitSha.isBlank()) {
+      return gitHubRepositoryClient.resolveDefaultBranchCommit(repositoryUrl);
+    }
+    if (!COMMIT_SHA.matcher(commitSha).matches()) {
+      throw new InvalidRepositoryException();
+    }
+    return commitSha;
   }
 }

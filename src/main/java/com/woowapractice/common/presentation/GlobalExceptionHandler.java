@@ -1,5 +1,6 @@
 package com.woowapractice.common.presentation;
 
+import com.woowapractice.grading.GitHubClientException;
 import com.woowapractice.grading.InvalidRepositoryException;
 import com.woowapractice.grading.SubmissionNotFoundException;
 import com.woowapractice.problem.application.InvalidProblemTestSourceException;
@@ -43,6 +44,15 @@ public class GlobalExceptionHandler {
         .body(
             new ApiErrorResponse(
                 "INVALID_REPOSITORY", exception.getMessage(), List.of(), getTraceId()));
+  }
+
+  @ExceptionHandler(GitHubClientException.class)
+  public ResponseEntity<ApiErrorResponse> handleGitHubClientFailure(
+      GitHubClientException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+        .body(
+            new ApiErrorResponse(
+                "GITHUB_UNAVAILABLE", exception.getMessage(), List.of(), getTraceId()));
   }
 
   @ExceptionHandler(SubmissionNotFoundException.class)

@@ -58,4 +58,12 @@ public class GradingJob {
   public static GradingJob create(Submission submission) {
     return new GradingJob(submission);
   }
+
+  public void claim(String workerId) {
+    this.status = GradingJobStatus.RUNNING;
+    this.claimedAt = Instant.now();
+    this.workerId = workerId;
+    this.attempt++;
+    this.submission.start();
+  }
 }

@@ -14,3 +14,9 @@ spring:
 springdoc:
   api-docs:
     version: openapi_3_1
+grading:
+  docker:
+    image: ${GRADING_DOCKER_IMAGE:woowapractice/grader:java21}
+    timeout-seconds: ${GRADING_TIMEOUT_SECONDS:120}
+  worker:
+    poll-ms: ${GRADING_WORKER_POLL_MS:1000}
