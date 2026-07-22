@@ -20,7 +20,7 @@
 
 | ADR | 제목 | 상태 |
 | --- | --- | --- |
-| [0001](0001-modular-monolith-with-separate-worker.md) | Gradle 멀티모듈과 API·워커 분리 | Accepted |
+| [0001](0001-modular-monolith-with-separate-worker.md) | Gradle 멀티모듈과 API·워커 분리 | Superseded |
 | [0002](0002-mysql-backed-grading-queue.md) | MySQL 기반 채점 작업 큐 | Accepted |
 | [0003](0003-runtime-test-injection-in-docker.md) | Docker 런타임 테스트 주입 | Accepted |
 | [0004](0004-java-spring-jpa-mysql-stack.md) | Java·Spring Boot·JPA·MySQL 기술 스택 | Accepted |
@@ -30,3 +30,4 @@
 | [0008](0008-openapi-and-swagger-ui.md) | OpenAPI 명세와 Swagger UI | Accepted |
 | [0009](0009-nstest-canonical-test-bundles.md) | NsTest 공식 테스트 번들 | Accepted |
 | [0010](0010-no-submission-source-snapshot.md) | 제출 소스 스냅샷 미보관 | Accepted |
+| [0011](0011-single-spring-project.md) | 단일 Spring Boot 프로젝트와 워커 실행 분리 | Accepted |

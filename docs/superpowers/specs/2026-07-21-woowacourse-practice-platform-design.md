@@ -12,23 +12,13 @@ MVP는 개인 학습 흐름과 안정적인 채점에 집중한다. 점수, 사�
 - Spring Data JPA, MySQL 8, Flyway
 - GitHub OAuth 전용 로그인
 - 단일 Linux 서버의 Docker Compose 배포
-- API와 채점 워커를 별도 Spring Boot 프로세스 및 컨테이너로 실행
+- API와 채점 워커를 같은 Spring Boot 프로젝트에서 별도 프로세스 및 컨테이너로 실행
 - Redis나 메시지 브로커 없이 MySQL 작업 테이블을 비동기 큐로 사용
 - 단일 서버에서 동시 채점 10건을 지원하고 워커만 수평 확장 가능
 
 ## 3. 시스템 구조
 
-Gradle 멀티모듈 단일 저장소를 사용한다.
-
-- `domain`: JPA 엔티티, 값 객체, 상태 전이와 핵심 도메인 규칙
-- `application`: 문제 조회, 제출 접수, 채점 상태 전이 등 유스케이스와 트랜잭션 경계
-- `infrastructure`: JPA 저장소 구현, GitHub 클라이언트, 문제 정의 로더
-- `grading`: 작업 선점, Git clone, 테스트 주입, Docker 실행 계약과 구현
-- `api`: REST API, OAuth, 공통 오류 응답, 최소 서버 렌더링 화면
-- `worker`: 채점 작업을 소비하는 별도 실행 애플리케이션
-- `problem-sync`: Git의 문제 정의를 검증하고 DB에 반영하는 배포용 CLI
-
-의존 방향은 `api/worker -> application -> domain`으로 제한한다. `domain`과 `application`은 HTTP, Thymeleaf, Docker 명령 등 표현 및 실행 기술에 의존하지 않는다. API는 Docker를 직접 실행하지 않고 MySQL에 제출과 채점 작업을 같은 트랜잭션으로 기록한다.
+단일 Gradle Spring Boot 프로젝트를 사용한다. 기능별 패키지는 `domain`, `application`, `infrastructure`, `presentation`, `grading`, `sync`로 나누되 Gradle 모듈로 분리하지 않는다. API와 워커는 같은 코드베이스를 공유하고 실행 프로필 또는 별도 main class로 구분한다. API는 Docker를 직접 실행하지 않고 MySQL에 제출과 채점 작업을 같은 트랜잭션으로 기록한다.
 
 ## 4. 문제 정의와 분류
 
@@ -50,7 +40,7 @@ problems/<slug>/
   tests/
 ```
 
-`problem.yaml`은 제목, 차수, 표시 순서, 스타터 저장소 URL, Java 버전, 실행 제한, 문제 버전을 포함한다. `README.md`는 문제 설명이며 `tests/`는 채점 시 주입할 공개 테스트다. 배포 담당자가 `problem-sync` 모듈의 Gradle 실행 명령을 호출하면 모든 정의를 검증한 뒤 하나의 트랜잭션으로 DB에 반영한다. 애플리케이션 시작 시 자동 동기화하지 않고 관리자 수정 API도 제공하지 않는다.
+`problem.yaml`은 제목, 차수, 표시 순서, 스타터 저장소 URL, Java 버전, 실행 제한, 문제 버전을 포함한다. `README.md`는 문제 설명이며 `tests/`는 채점 시 주입할 공개 테스트다. 배포 담당자가 단일 프로젝트의 sync 실행 명령을 호출하면 모든 정의를 검증한 뒤 하나의 트랜잭션으로 DB에 반영한다. 애플리케이션 시작 시 자동 동기화하지 않고 관리자 수정 API도 제공하지 않는다.
 
 제출 저장소와 공식 테스트 번들은 하나의 고정된 프리코스 실행 환경을 따른다. 제출 프로젝트는 `src/main/java/Application.java`의 `Application.main(String[])` 진입점과 `src/test/java/ApplicationTest.java` 테스트 위치를 사용한다. 공식 테스트는 `NsTest`를 상속하고 `run(...)`, `output()`, `runException(...)`, `assertRandomNumberInRangeTest(...)`로 입력·출력·예외·랜덤 동작을 검증한다. 워커는 공식 테스트를 주입한 뒤 `./gradlew test --tests ApplicationTest`를 실행한다. 문제별 차이는 Gradle 모듈이나 실행 스크립트가 아니라 공식 `ApplicationTest`의 입력, 기대 출력, 예외 조건이다.
 

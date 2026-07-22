@@ -1,68 +1,76 @@
 plugins {
     id 'java'
     id 'checkstyle'
-    id 'org.springframework.boot' version '4.1.0' apply false
-    id 'io.spring.dependency-management' version '1.1.7' apply false
-    id 'com.diffplug.spotless' version '8.0.0' apply false
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '8.0.0'
 }
 
-allprojects {
-    group = 'com.woowapractice'
-    version = '0.0.1-SNAPSHOT'
+group = 'com.woowapractice'
+version = '0.0.1-SNAPSHOT'
 
-    repositories {
-        mavenCentral()
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'checkstyle'
-    apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'com.diffplug.spotless'
+repositories {
+    mavenCentral()
+}
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
-        }
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-        }
-    }
-
-    configurations {
-        compileOnly {
-            extendsFrom annotationProcessor
-        }
-    }
-
+dependencyManagement {
     dependencies {
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
-        testCompileOnly 'org.projectlombok:lombok'
-        testAnnotationProcessor 'org.projectlombok:lombok'
-        testImplementation 'org.junit.jupiter:junit-jupiter'
-        testImplementation 'org.assertj:assertj-core'
+        dependency 'org.apache.groovy:groovy:4.0.22'
+        dependency 'org.apache.groovy:groovy-json:4.0.22'
+        dependency 'org.apache.groovy:groovy-xml:4.0.22'
     }
+}
 
-    tasks.withType(Test).configureEach {
-        useJUnitPlatform()
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
     }
+}
 
-    checkstyle {
-        toolVersion = '10.21.4'
-        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-    }
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-flyway'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 
-    spotless {
-        java {
-            googleJavaFormat()
-            removeUnusedImports()
-            trimTrailingWhitespace()
-            endWithNewline()
-        }
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework:spring-jdbc'
+    testImplementation 'org.springframework:spring-tx'
+    testImplementation 'io.rest-assured:rest-assured:5.5.6'
+    testRuntimeOnly 'com.h2database:h2'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+checkstyle {
+    toolVersion = '10.21.4'
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
