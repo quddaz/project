@@ -9,6 +9,10 @@ import com.woowapractice.problem.application.ProblemCatalog;
 import com.woowapractice.support.DatabaseCleaner;
 import com.woowapractice.support.ProblemFixture;
 import io.restassured.RestAssured;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -104,5 +108,32 @@ class SubmissionApiAcceptanceTest {
         .statusCode(200)
         .body("id", equalTo(id.intValue()))
         .body("status", equalTo("QUEUED"));
+  }
+
+  @Test
+  @DisplayName("서로 다른 제출 10건을 동시에 접수한다")
+  void create_tenConcurrentSubmissions_acceptsAll() throws Exception {
+    try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
+      List<Future<Integer>> responses =
+          java.util.stream.IntStream.range(0, 10)
+              .mapToObj(
+                  index ->
+                      executor.submit(
+                          () ->
+                              given()
+                                  .port(port)
+                                  .contentType("application/json")
+                                  .body(
+                                      "{\"repositoryUrl\":\"https://github.com/example/racing-car\",\"commitSha\":\""
+                                          + String.format("%040d", index + 1)
+                                          + "\"}")
+                                  .when()
+                                  .post("/api/problems/racing-car/submissions")
+                                  .statusCode()))
+              .toList();
+      for (Future<Integer> response : responses) {
+        org.assertj.core.api.Assertions.assertThat(response.get()).isEqualTo(202);
+      }
+    }
   }
 }
