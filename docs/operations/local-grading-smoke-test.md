@@ -14,6 +14,15 @@ The worker must run on the host because it starts one constrained Docker
 sandbox for each grading job. Do not give the API container access to the
 Docker daemon socket.
 
+## Build The Grader Image
+
+Build the constrained image used by `DockerSandboxRunner` before starting the
+stack:
+
+```bash
+docker build -t woowapractice/grader:java21 docker/grader
+```
+
 ## Start The API And Database
 
 From the project root, build and start the local stack with security disabled:
@@ -51,6 +60,14 @@ The worker runs with the `worker` profile and polls MySQL. It is a non-web
 process, so it must not open an HTTP port. Its host Docker CLI access is what
 allows `DockerSandboxRunner` to launch the grader image with the configured
 network, CPU, memory, PID, and timeout limits.
+
+## Scope Of This Smoke Test
+
+This reproducible baseline verifies that MySQL, the API, and the host worker
+start with the intended topology. It does not claim to complete an end-to-end
+grading run. Live submission and worker-claim validation additionally require
+a public GitHub fork that matches a configured starter repository and
+DB-managed problem data, including an official `ApplicationTest` source.
 
 ## Stop The Smoke Test
 
