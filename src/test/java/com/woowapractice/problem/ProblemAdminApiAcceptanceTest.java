@@ -99,4 +99,17 @@ class ProblemAdminApiAcceptanceTest {
         .statusCode(400)
         .body("code", equalTo("INVALID_PROBLEM_TEST_SOURCE"));
   }
+
+  @Test
+  @DisplayName("관리자는 필수 필드가 없는 문제 등록 요청을 보내면 검증 오류를 받는다")
+  void create_missingRequiredFields_returnsBadRequest() {
+    given()
+        .contentType("application/json")
+        .body("{}")
+        .when()
+        .post("/api/admin/problems")
+        .then()
+        .statusCode(400)
+        .body("code", equalTo("INVALID_REQUEST"));
+  }
 }
