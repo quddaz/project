@@ -18,7 +18,7 @@ spring:
           github:
             client-id: ${GITHUB_CLIENT_ID:}
             client-secret: ${GITHUB_CLIENT_SECRET:}
-            scope: read:user,repo
+            scope: read:user,user:email
 springdoc:
   api-docs:
     version: openapi_3_1
