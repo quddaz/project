@@ -1,44 +1,742 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Woowa Practice</title>
   <style>
-    :root { font-family: Inter, Pretendard, sans-serif; color: #172033; background: #f5f7fa; }
-    body { margin: 0; } main { max-width: 960px; margin: auto; padding: 32px 20px 64px; }
-    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 28px; }
-    h1 { margin: 0; font-size: 28px; } select, input, button { font: inherit; padding: 10px 12px; border: 1px solid #c8cfdb; }
-    button { background: #1769e0; color: white; border: 0; font-weight: 700; cursor: pointer; }
-    #problems { display: grid; gap: 12px; } article { background: white; border: 1px solid #d9dee8; padding: 18px; }
-    article h2 { margin: 0 0 8px; font-size: 18px; } form { display: grid; gap: 12px; margin-top: 16px; }
-    .status { margin-top: 18px; white-space: pre-wrap; } .error { color: #b42318; } .success { color: #147a42; }
-    .muted { color: #657087; font-size: 13px; }
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --canvas: #f4f6f8;
+      --surface: #ffffff;
+      --line: #d7dce3;
+      --primary: #1769e0;
+      --primary-soft: #eaf2ff;
+      --success: #147a42;
+      --success-soft: #e8f6ee;
+      --warning: #9a5b00;
+      --warning-soft: #fff4d6;
+      --danger: #b42318;
+      --danger-soft: #ffebe9;
+      font-family: Inter, Pretendard, "Noto Sans KR", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; background: var(--canvas); }
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid rgba(23, 105, 224, .28);
+      outline-offset: 2px;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 64px;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .brand { margin: 0; font-size: 20px; line-height: 1.3; }
+    .login-link {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: var(--surface);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .login-link:hover { border-color: #aeb7c4; background: #f8fafc; }
+
+    .stage-bar { border-bottom: 1px solid var(--line); background: var(--surface); }
+    .stage-tabs {
+      max-width: 1440px;
+      display: flex;
+      gap: 4px;
+      margin: 0 auto;
+      padding: 10px 28px 0;
+      overflow-x: auto;
+    }
+    .stage-tab {
+      min-width: 82px;
+      min-height: 40px;
+      padding: 0 13px 8px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      color: var(--muted);
+      background: transparent;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .stage-tab:hover { color: var(--ink); background: #f8fafc; }
+    .stage-tab[aria-selected="true"] { border-bottom-color: var(--primary); color: var(--primary); }
+
+    .dashboard {
+      width: 100%;
+      max-width: 1440px;
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 20px;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+    .problem-pane, .work-panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .problem-pane { align-self: start; overflow: hidden; }
+    .pane-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .pane-heading h2 { margin: 0; font-size: 16px; }
+    .count { color: var(--muted); font-size: 13px; }
+    .problem-list { display: grid; }
+    .problem-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px 12px;
+      padding: 15px 18px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      color: var(--ink);
+      background: var(--surface);
+      text-align: left;
+      cursor: pointer;
+    }
+    .problem-row:last-child { border-bottom: 0; }
+    .problem-row:hover { background: #f8fafc; }
+    .problem-row[aria-current="true"] {
+      box-shadow: inset 4px 0 0 var(--primary);
+      background: var(--primary-soft);
+    }
+    .problem-title { min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: 700; }
+    .problem-order { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .problem-stage { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+
+    .empty-state, .loading-state, .select-state {
+      margin: 0;
+      padding: 32px 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .work-panel { min-height: 460px; padding: 26px; }
+    .work-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .work-header h2 { margin: 3px 0 5px; font-size: 24px; line-height: 1.35; overflow-wrap: anywhere; }
+    .eyebrow { margin: 0; color: var(--primary); font-size: 12px; font-weight: 800; }
+    .meta { margin: 0; color: var(--muted); font-size: 13px; }
+    .problem-description {
+      margin: 22px 0;
+      color: #344054;
+      font-size: 15px;
+      line-height: 1.75;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+    .starter-link { color: var(--primary); font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+    .starter-link:hover { text-decoration-thickness: 2px; }
+
+    .submission-section, .result-section, .feedback-section {
+      margin-top: 26px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+    .section-heading { margin: 0 0 14px; font-size: 16px; }
+    .submission-form { display: grid; gap: 14px; }
+    .form-field { display: grid; gap: 7px; }
+    .form-field label { font-size: 13px; font-weight: 700; }
+    .form-field input {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid #b8c0cc;
+      border-radius: 6px;
+      color: var(--ink);
+      background: var(--surface);
+    }
+    .form-field input::placeholder { color: #8a94a5; }
+    .field-help { margin: 0; color: var(--muted); font-size: 12px; }
+    .command-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+    .button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button-primary { color: #fff; background: var(--primary); }
+    .button-primary:hover { background: #1259bd; }
+    .button-secondary { border-color: #aeb7c4; color: var(--ink); background: var(--surface); }
+    .button-secondary:hover { background: #f2f4f7; }
+    .button:disabled { opacity: .58; cursor: not-allowed; }
+
+    .inline-message {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-left: 3px solid #8a94a5;
+      color: #475467;
+      background: #f2f4f7;
+      font-size: 13px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    .inline-message.success { border-left-color: var(--success); color: #0d6335; background: var(--success-soft); }
+    .inline-message.error { border-left-color: var(--danger); color: #8f1d14; background: var(--danger-soft); }
+    .inline-message.warning { border-left-color: var(--warning); color: #754400; background: var(--warning-soft); }
+    .inline-message a { color: inherit; font-weight: 700; }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 27px;
+      padding: 3px 9px;
+      border: 1px solid #cbd2dc;
+      border-radius: 999px;
+      color: #475467;
+      background: #f2f4f7;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .status-chip.success { border-color: #add9bf; color: var(--success); background: var(--success-soft); }
+    .status-chip.warning { border-color: #efd38c; color: var(--warning); background: var(--warning-soft); }
+    .status-chip.danger { border-color: #efb5af; color: var(--danger); background: var(--danger-soft); }
+
+    .result-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .result-summary p { margin: 0; color: var(--muted); font-size: 13px; }
+    .table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
+    .result-table { width: 100%; min-width: 590px; border-collapse: collapse; font-size: 13px; }
+    .result-table th, .result-table td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .result-table th { color: #475467; background: #f8fafc; font-size: 12px; }
+    .result-table tr:last-child td { border-bottom: 0; }
+    .result-table td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .failure-detail { max-width: 440px; color: var(--danger); line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .feedback-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .feedback-block { min-width: 0; }
+    .feedback-block:first-child { grid-column: 1 / -1; }
+    .feedback-block h4 { margin: 0 0 6px; font-size: 13px; }
+    .feedback-block p { margin: 0; color: #475467; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap; }
+
+    #page-status {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 860px) {
+      .site-header { padding: 0 18px; }
+      .stage-tabs { padding-left: 18px; padding-right: 18px; }
+      .dashboard { grid-template-columns: 1fr; padding: 18px 18px 36px; }
+      .work-panel { min-height: 360px; padding: 22px 18px; }
+    }
+
+    @media (max-width: 540px) {
+      .brand { font-size: 18px; }
+      .login-link { padding: 0 10px; font-size: 13px; }
+      .dashboard { padding-left: 12px; padding-right: 12px; }
+      .work-header { display: grid; }
+      .work-header h2 { font-size: 21px; }
+      .feedback-grid { grid-template-columns: 1fr; }
+      .feedback-block:first-child { grid-column: auto; }
+      .button { width: 100%; }
+      .command-row { align-items: stretch; }
+    }
   </style>
 </head>
-<body><main>
-  <header><h1>Woowa Practice</h1><a href="/oauth2/authorization/github">GitHub 로그인</a></header>
-  <label>차수 <select id="stage"><option>ROUND_1</option><option>ROUND_2</option><option>ROUND_3</option><option>ROUND_4</option><option>ROUND_5</option><option>FINAL</option></select></label>
-  <section id="problems" aria-live="polite"></section>
-  <div id="status" class="status"></div>
-</main>
-<script>
-  const problems = document.querySelector('#problems');
-  const status = document.querySelector('#status');
-  async function loadProblems() {
-    const response = await fetch(`/api/problems?stage=${document.querySelector('#stage').value}`);
-    const body = await response.json();
-    problems.innerHTML = body.problems.map(problem => `
-      <article><h2>${escapeHtml(problem.title)}</h2><div class="muted">${problem.stage} · ${problem.slug}</div>
-      <form data-slug="${problem.slug}"><input name="repositoryUrl" type="url" placeholder="https://github.com/username/repository" required><input name="commitSha" minlength="40" maxlength="40" placeholder="커밋 SHA (선택)"><button>채점 제출</button></form></article>`).join('');
-  }
-  problems.addEventListener('submit', async event => {
-    event.preventDefault(); const form = event.target; const data = Object.fromEntries(new FormData(form));
-    try {
-      const response = await fetch(`/api/problems/${form.dataset.slug}/submissions`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
-      const body = await response.json(); if (!response.ok) throw new Error(body.message || '제출에 실패했습니다.');
-      status.className = 'status success'; status.textContent = `제출되었습니다. ID: ${body.id}\n결과: /api/submissions/${body.id}`;
-    } catch (error) { status.className = 'status error'; status.textContent = error.message; }
-  });
-  document.querySelector('#stage').addEventListener('change', loadProblems); loadProblems();
-  function escapeHtml(value) { return value.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
-</script></body></html>
+<body>
+  <header class="site-header">
+    <h1 class="brand">Woowa Practice</h1>
+    <a class="login-link" href="/oauth2/authorization/github">GitHub 로그인</a>
+  </header>
+
+  <nav class="stage-bar" aria-label="프리코스 차수">
+    <div id="stage-tabs" class="stage-tabs" role="tablist" aria-label="문제 차수 선택"></div>
+  </nav>
+
+  <main class="dashboard">
+    <section class="problem-pane" aria-label="문제 목록">
+      <div class="pane-heading">
+        <h2>문제 목록</h2>
+        <span id="problem-count" class="count">불러오는 중</span>
+      </div>
+      <div id="problem-list" class="problem-list" role="tabpanel" aria-live="polite"></div>
+    </section>
+    <aside id="work-panel" class="work-panel" aria-live="polite">
+      <p class="select-state">목록에서 문제를 선택해 상세 내용과 제출 양식을 확인하세요.</p>
+    </aside>
+  </main>
+
+  <div id="page-status" role="status" aria-live="polite"></div>
+
+  <script>
+    const STAGES = ['ROUND_1', 'ROUND_2', 'ROUND_3', 'ROUND_4', 'ROUND_5', 'FINAL'];
+    const TERMINAL_STATUSES = new Set(['PASSED', 'FAILED', 'ERROR']);
+    const state = {
+      stage: 'ROUND_1',
+      problems: [],
+      selectedSlug: null,
+      lastSubmissionId: null,
+      submission: null,
+      feedback: null,
+      listRequest: 0,
+      detailRequest: 0
+    };
+
+    const stageTabs = document.querySelector('#stage-tabs');
+    const problemList = document.querySelector('#problem-list');
+    const problemCount = document.querySelector('#problem-count');
+    const workPanel = document.querySelector('#work-panel');
+    const pageStatus = document.querySelector('#page-status');
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, options);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(body.message || '요청을 처리하지 못했습니다.');
+        error.status = response.status;
+        throw error;
+      }
+      return body;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function safeWebUrl(value) {
+      try {
+        const url = new URL(value);
+        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+      } catch (error) {
+        return '';
+      }
+    }
+
+    function stageLabel(stage) {
+      return stage === 'FINAL' ? '파이널' : `${stage.replace('ROUND_', '')}차`;
+    }
+
+    function statusMeta(status) {
+      return ({
+        QUEUED: { label: '대기 중', tone: 'warning' },
+        RUNNING: { label: '채점 중', tone: 'warning' },
+        PASSED: { label: '통과', tone: 'success' },
+        FAILED: { label: '실패', tone: 'danger' },
+        ERROR: { label: '처리 오류', tone: 'danger' },
+        SKIPPED: { label: '건너뜀', tone: '' },
+        GENERATED: { label: '생성 완료', tone: 'success' }
+      })[status] || { label: status || '확인 필요', tone: '' };
+    }
+
+    function statusChip(status) {
+      const meta = statusMeta(status);
+      return `<span class="status-chip ${meta.tone}">${escapeHtml(meta.label)}</span>`;
+    }
+
+    function announce(message) {
+      pageStatus.textContent = '';
+      requestAnimationFrame(() => { pageStatus.textContent = message; });
+    }
+
+    function renderStageTabs() {
+      stageTabs.innerHTML = STAGES.map(stage => `
+        <button
+          id="tab-${stage.toLowerCase().replace('_', '-')}"
+          class="stage-tab"
+          type="button"
+          role="tab"
+          aria-controls="problem-list"
+          aria-selected="${stage === state.stage}"
+          tabindex="${stage === state.stage ? '0' : '-1'}"
+          data-stage="${stage}"
+        >${stageLabel(stage)}</button>
+      `).join('');
+      problemList.setAttribute('aria-labelledby', `tab-${state.stage.toLowerCase().replace('_', '-')}`);
+    }
+
+    function renderProblemList(message = '') {
+      problemCount.textContent = message ? '확인 필요' : `${state.problems.length}개`;
+      if (message) {
+        problemList.innerHTML = `<p class="empty-state">${escapeHtml(message)}</p>`;
+        return;
+      }
+      if (state.problems.length === 0) {
+        problemList.innerHTML = '<p class="empty-state">이 차수에 공개된 문제가 없습니다.</p>';
+        return;
+      }
+      problemList.innerHTML = state.problems.map(problem => `
+        <button
+          class="problem-row"
+          type="button"
+          data-slug="${escapeHtml(problem.slug)}"
+          aria-current="${problem.slug === state.selectedSlug}"
+        >
+          <span class="problem-title">${escapeHtml(problem.title)}</span>
+          <span class="problem-order">#${escapeHtml(problem.displayOrder)}</span>
+          <span class="problem-stage">${escapeHtml(stageLabel(problem.stage))}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderPanelMessage(message, kind = 'select-state') {
+      workPanel.innerHTML = `<p class="${kind}">${escapeHtml(message)}</p>`;
+    }
+
+    function renderProblemDetail(problem) {
+      const starterUrl = safeWebUrl(problem.starterRepositoryUrl);
+      workPanel.innerHTML = `
+        <div class="work-header">
+          <div>
+            <p class="eyebrow">${escapeHtml(stageLabel(problem.stage))} · #${escapeHtml(problem.displayOrder)}</p>
+            <h2>${escapeHtml(problem.title)}</h2>
+            <p class="meta">Java ${escapeHtml(problem.javaVersion)} · 문제 버전 ${escapeHtml(problem.version)}</p>
+          </div>
+        </div>
+        <div class="problem-description">${escapeHtml(problem.descriptionMarkdown || '상세 설명이 없습니다.')}</div>
+        ${starterUrl
+          ? `<a class="starter-link" href="${escapeHtml(starterUrl)}" target="_blank" rel="noopener noreferrer">스타터 저장소 열기</a>`
+          : '<p class="meta">스타터 저장소가 등록되지 않았습니다.</p>'}
+        <section class="submission-section" aria-labelledby="submission-heading">
+          <h3 id="submission-heading" class="section-heading">채점 제출</h3>
+          <form id="submission-form" class="submission-form" data-slug="${escapeHtml(problem.slug)}">
+            <div class="form-field">
+              <label for="repository-url">GitHub 저장소 URL</label>
+              <input id="repository-url" name="repositoryUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://github.com/username/repository" required>
+            </div>
+            <div class="form-field">
+              <label for="commit-sha">커밋 SHA <span class="meta">(선택)</span></label>
+              <input id="commit-sha" name="commitSha" type="text" minlength="40" maxlength="40" pattern="[0-9a-fA-F]{40}" autocomplete="off" placeholder="40자 커밋 SHA">
+              <p class="field-help">비워 두면 저장소의 기본 브랜치를 채점합니다.</p>
+            </div>
+            <div class="command-row">
+              <button class="button button-primary" type="submit">채점 제출</button>
+            </div>
+          </form>
+          <div id="submission-message" aria-live="polite"></div>
+        </section>
+        <div id="submission-result"></div>
+        <div id="feedback-result"></div>
+      `;
+    }
+
+    function renderSubmissionMessage(message, tone = '') {
+      const container = document.querySelector('#submission-message');
+      if (!container) return;
+      const loginHelp = tone === 'auth'
+        ? ' <a href="/oauth2/authorization/github">GitHub 로그인</a> 후 다시 제출해 주세요.'
+        : '';
+      const className = tone === 'auth' ? 'error' : tone;
+      container.innerHTML = `<p class="inline-message ${className}">${escapeHtml(message)}${loginHelp}</p>`;
+    }
+
+    function renderSubmissionResult() {
+      const container = document.querySelector('#submission-result');
+      if (!container || !state.submission) return;
+      const submission = state.submission;
+      const tests = Array.isArray(submission.tests)
+        ? submission.tests
+        : (Array.isArray(submission.testResults) ? submission.testResults : []);
+      const terminal = TERMINAL_STATUSES.has(submission.status);
+      const completed = submission.completedAt
+        ? new Date(submission.completedAt).toLocaleString('ko-KR')
+        : '아직 완료되지 않음';
+
+      container.innerHTML = `
+        <section class="result-section" aria-labelledby="result-heading">
+          <div class="result-summary">
+            <div>
+              <h3 id="result-heading" class="section-heading">채점 결과</h3>
+              <p>제출 #${escapeHtml(submission.id)} · ${escapeHtml(completed)}</p>
+            </div>
+            ${statusChip(submission.status)}
+          </div>
+          <div class="command-row">
+            <button id="refresh-result" class="button button-secondary" type="button">결과 새로고침</button>
+            ${terminal ? '<button id="generate-feedback" class="button button-secondary" type="button">피드백 생성</button><button id="load-feedback" class="button button-secondary" type="button">저장된 피드백 조회</button>' : ''}
+          </div>
+          <div id="result-message" aria-live="polite">
+            ${submission.errorMessage ? `<p class="inline-message error">${escapeHtml(submission.errorMessage)}</p>` : ''}
+            ${!terminal ? '<p class="inline-message warning">상태는 자동으로 변경되지 않습니다. 확인할 때 결과 새로고침을 눌러 주세요.</p>' : ''}
+          </div>
+          ${renderTests(tests, terminal)}
+        </section>
+      `;
+    }
+
+    function renderTests(tests, terminal) {
+      if (tests.length === 0) {
+        return terminal
+          ? '<p class="inline-message">표시할 테스트 결과가 없습니다.</p>'
+          : '';
+      }
+      return `
+        <div class="table-wrap">
+          <table class="result-table">
+            <thead><tr><th scope="col">테스트</th><th scope="col">결과</th><th scope="col">소요 시간</th><th scope="col">세부 내용</th></tr></thead>
+            <tbody>
+              ${tests.map(test => `
+                <tr>
+                  <td>${escapeHtml(test.displayName || test.testIdentifier)}</td>
+                  <td>${statusChip(test.status)}</td>
+                  <td>${test.durationMillis == null ? '-' : `${escapeHtml(test.durationMillis)} ms`}</td>
+                  <td class="failure-detail">${escapeHtml(test.failureMessage || '-')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderFeedback(feedback) {
+      const container = document.querySelector('#feedback-result');
+      if (!container) return;
+      container.innerHTML = `
+        <section class="feedback-section" aria-labelledby="feedback-heading">
+          <div class="result-summary">
+            <h3 id="feedback-heading" class="section-heading">피드백</h3>
+            ${statusChip(feedback.status)}
+          </div>
+          <div class="feedback-grid">
+            <div class="feedback-block"><h4>요약</h4><p>${escapeHtml(feedback.summary || '요약이 아직 없습니다.')}</p></div>
+            <div class="feedback-block"><h4>잘한 점</h4><p>${escapeHtml(feedback.strengths || '-')}</p></div>
+            <div class="feedback-block"><h4>개선할 점</h4><p>${escapeHtml(feedback.improvements || '-')}</p></div>
+          </div>
+        </section>
+      `;
+    }
+
+    function setControlBusy(control, busy, busyLabel) {
+      if (!control) return;
+      if (busy) {
+        control.dataset.label = control.textContent;
+        control.textContent = busyLabel;
+        control.disabled = true;
+      } else {
+        control.textContent = control.dataset.label || control.textContent;
+        control.disabled = false;
+      }
+    }
+
+    async function loadProblems(stage) {
+      const requestId = ++state.listRequest;
+      state.stage = stage;
+      state.problems = [];
+      state.selectedSlug = null;
+      state.lastSubmissionId = null;
+      state.submission = null;
+      state.feedback = null;
+      renderStageTabs();
+      problemCount.textContent = '불러오는 중';
+      problemList.innerHTML = '<p class="loading-state">문제를 불러오는 중입니다.</p>';
+      renderPanelMessage('목록에서 문제를 선택해 상세 내용과 제출 양식을 확인하세요.');
+      try {
+        const body = await request(`/api/problems?stage=${encodeURIComponent(stage)}`);
+        if (requestId !== state.listRequest) return;
+        if (!Array.isArray(body.problems)) throw new Error('문제 목록 응답 형식이 올바르지 않습니다.');
+        state.problems = body.problems;
+        renderProblemList();
+        announce(`${stageLabel(stage)} 문제 ${state.problems.length}개를 불러왔습니다.`);
+      } catch (error) {
+        if (requestId !== state.listRequest) return;
+        renderProblemList(error.message);
+        announce(error.message);
+      }
+    }
+
+    async function selectProblem(slug) {
+      const requestId = ++state.detailRequest;
+      state.selectedSlug = slug;
+      state.lastSubmissionId = null;
+      state.submission = null;
+      state.feedback = null;
+      renderProblemList();
+      renderPanelMessage('문제 상세를 불러오는 중입니다.', 'loading-state');
+      try {
+        const problem = await request(`/api/problems/${encodeURIComponent(slug)}`);
+        if (requestId !== state.detailRequest || slug !== state.selectedSlug) return;
+        if (!problem || problem.slug !== slug) throw new Error('문제 상세 응답 형식이 올바르지 않습니다.');
+        renderProblemDetail(problem);
+        announce(`${problem.title} 문제를 선택했습니다.`);
+      } catch (error) {
+        if (requestId !== state.detailRequest) return;
+        renderPanelMessage(error.message, 'empty-state');
+        announce(error.message);
+      }
+    }
+
+    async function submitSolution(form) {
+      const button = form.querySelector('button[type="submit"]');
+      const data = new FormData(form);
+      const repositoryUrl = String(data.get('repositoryUrl') || '').trim();
+      const commitSha = String(data.get('commitSha') || '').trim();
+      const slug = form.dataset.slug;
+      setControlBusy(button, true, '제출 중');
+      renderSubmissionMessage('제출을 접수하는 중입니다.');
+      try {
+        const submission = await request(`/api/problems/${encodeURIComponent(slug)}/submissions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repositoryUrl, ...(commitSha ? { commitSha } : {}) })
+        });
+        if (submission.id == null || !submission.status) throw new Error('제출 응답 형식이 올바르지 않습니다.');
+        if (state.selectedSlug !== slug || !form.isConnected) return;
+        state.lastSubmissionId = submission.id;
+        state.submission = submission;
+        state.feedback = null;
+        const feedbackContainer = document.querySelector('#feedback-result');
+        if (feedbackContainer) feedbackContainer.innerHTML = '';
+        renderSubmissionMessage(`제출 #${submission.id}이(가) 대기열에 등록되었습니다.`, 'success');
+        renderSubmissionResult();
+        announce(`제출 #${submission.id}이(가) 등록되었습니다.`);
+      } catch (error) {
+        if (state.selectedSlug !== slug || !form.isConnected) return;
+        renderSubmissionMessage(error.message, [401, 403].includes(error.status) ? 'auth' : 'error');
+        announce(error.message);
+      } finally {
+        setControlBusy(button, false);
+      }
+    }
+
+    async function refreshSubmission(button) {
+      if (state.lastSubmissionId == null) return;
+      const submissionId = state.lastSubmissionId;
+      const selectedSlug = state.selectedSlug;
+      setControlBusy(button, true, '새로고침 중');
+      const message = document.querySelector('#result-message');
+      if (message) message.innerHTML = '<p class="inline-message">최신 채점 결과를 불러오는 중입니다.</p>';
+      try {
+        const submission = await request(`/api/submissions/${encodeURIComponent(submissionId)}`);
+        if (submission.id == null || !submission.status) throw new Error('채점 결과 응답 형식이 올바르지 않습니다.');
+        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
+        state.submission = submission;
+        renderSubmissionResult();
+        announce(`제출 #${submission.id}의 결과를 새로고침했습니다.`);
+      } catch (error) {
+        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
+        const currentMessage = document.querySelector('#result-message');
+        if (currentMessage) currentMessage.innerHTML = `<p class="inline-message error">${escapeHtml(error.message)}</p>`;
+        announce(error.message);
+      } finally {
+        if (button.isConnected) setControlBusy(button, false);
+      }
+    }
+
+    async function handleFeedback(button, method) {
+      if (state.lastSubmissionId == null || !TERMINAL_STATUSES.has(state.submission?.status)) return;
+      const submissionId = state.lastSubmissionId;
+      const selectedSlug = state.selectedSlug;
+      setControlBusy(button, true, method === 'POST' ? '생성 중' : '조회 중');
+      try {
+        const feedback = await request(`/api/submissions/${encodeURIComponent(submissionId)}/feedback`, { method });
+        if (!feedback || !feedback.status) throw new Error('피드백 응답 형식이 올바르지 않습니다.');
+        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
+        state.feedback = feedback;
+        renderFeedback(feedback);
+        announce(method === 'POST' ? '피드백을 생성했습니다.' : '저장된 피드백을 불러왔습니다.');
+      } catch (error) {
+        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
+        const container = document.querySelector('#feedback-result');
+        if (container) container.innerHTML = `<p class="inline-message error">${escapeHtml(error.message)}</p>`;
+        announce(error.message);
+      } finally {
+        setControlBusy(button, false);
+      }
+    }
+
+    stageTabs.addEventListener('click', event => {
+      const tab = event.target.closest('[data-stage]');
+      if (!tab || tab.dataset.stage === state.stage) return;
+      loadProblems(tab.dataset.stage);
+    });
+
+    stageTabs.addEventListener('keydown', event => {
+      const tab = event.target.closest('[data-stage]');
+      if (!tab) return;
+      const current = STAGES.indexOf(tab.dataset.stage);
+      let next = null;
+      if (event.key === 'ArrowRight') next = (current + 1) % STAGES.length;
+      if (event.key === 'ArrowLeft') next = (current - 1 + STAGES.length) % STAGES.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = STAGES.length - 1;
+      if (next == null) return;
+      event.preventDefault();
+      const nextTab = stageTabs.querySelector(`[data-stage="${STAGES[next]}"]`);
+      nextTab.focus();
+      nextTab.click();
+    });
+
+    problemList.addEventListener('click', event => {
+      const row = event.target.closest('[data-slug]');
+      if (!row || row.dataset.slug === state.selectedSlug) return;
+      selectProblem(row.dataset.slug);
+    });
+
+    workPanel.addEventListener('submit', event => {
+      if (event.target.id !== 'submission-form') return;
+      event.preventDefault();
+      submitSolution(event.target);
+    });
+
+    workPanel.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.id === 'refresh-result') refreshSubmission(button);
+      if (button.id === 'generate-feedback') handleFeedback(button, 'POST');
+      if (button.id === 'load-feedback') handleFeedback(button, 'GET');
+    });
+
+    renderStageTabs();
+    loadProblems(state.stage);
+  </script>
+</body>
+</html>
