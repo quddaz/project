@@ -60,6 +60,17 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+springBoot {
+    mainClass = 'com.woowapractice.api.ApiApplication'
+}
+
+tasks.register('workerRun', JavaExec) {
+    group = 'application'
+    description = 'Run the grading worker process'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.woowapractice.grading.GradingWorkerApplication'
+}
+
 checkstyle {
     toolVersion = '10.21.4'
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
