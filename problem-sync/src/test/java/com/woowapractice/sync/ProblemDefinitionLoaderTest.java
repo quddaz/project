@@ -3,10 +3,12 @@ package com.woowapractice.sync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.woowapractice.problem.application.ProblemSyncCommand;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -121,6 +123,63 @@ class ProblemDefinitionLoaderTest {
         });
   }
 
+  @Test
+  @DisplayName("테스트 경로와 내용의 경계를 구분해 체크섬을 만든다")
+  void load_ambiguousTestPathAndPayload_returnsDifferentChecksum() throws IOException {
+    // given
+    Path firstRoot = Files.createDirectories(tempDirectory.resolve("first"));
+    Path firstProblem = ProblemDefinitionFixture.write(firstRoot, "racing-car");
+    ProblemDefinitionFixture.writeTest(firstProblem, "a", "b");
+    Path secondRoot = Files.createDirectories(tempDirectory.resolve("second"));
+    Path secondProblem = ProblemDefinitionFixture.write(secondRoot, "racing-car");
+    ProblemDefinitionFixture.writeTest(secondProblem, "ab", "");
+
+    // when
+    String firstChecksum = loader.load(firstRoot).getFirst().configChecksum();
+    String secondChecksum = loader.load(secondRoot).getFirst().configChecksum();
+
+    // then
+    assertThat(firstChecksum).isNotEqualTo(secondChecksum);
+  }
+
+  @Test
+  @DisplayName("심볼릭 링크인 문제 디렉터리는 경로가 포함된 예외를 던진다")
+  void load_symbolicLinkProblemDirectory_throwsInvalidProblemDefinitionException()
+      throws IOException {
+    // given
+    Path definitionsRoot = Files.createDirectories(tempDirectory.resolve("definitions"));
+    Path externalProblem = ProblemDefinitionFixture.write(tempDirectory, "external-problem");
+    Path symbolicLink = definitionsRoot.resolve("racing-car");
+    createSymbolicLinkOrSkip(symbolicLink, externalProblem);
+
+    // when
+    Runnable loadDefinitions = () -> loader.load(definitionsRoot);
+
+    // then
+    assertThatThrownBy(loadDefinitions::run)
+        .isInstanceOf(InvalidProblemDefinitionException.class)
+        .hasMessageContaining(symbolicLink.toString());
+  }
+
+  @Test
+  @DisplayName("심볼릭 링크인 테스트 파일은 경로가 포함된 예외를 던진다")
+  void load_symbolicLinkTestFile_throwsInvalidProblemDefinitionException() throws IOException {
+    // given
+    Path definitionsRoot = Files.createDirectories(tempDirectory.resolve("definitions"));
+    Path problemDirectory = ProblemDefinitionFixture.write(definitionsRoot, "racing-car");
+    Path externalTest = Files.writeString(tempDirectory.resolve("external-test.txt"), "external");
+    Path symbolicLink = problemDirectory.resolve("tests/input.txt");
+    createSymbolicLinkOrSkip(symbolicLink, externalTest);
+
+    // when
+    Runnable loadDefinitions = () -> loader.load(definitionsRoot);
+
+    // then
+    assertThatThrownBy(loadDefinitions::run)
+        .isInstanceOf(InvalidProblemDefinitionException.class)
+        .hasMessageContaining(symbolicLink.toString());
+  }
+
   @ParameterizedTest(name = "{0}")
   @MethodSource("invalidDefinitions")
   @DisplayName("잘못된 문제 정의는 해당 경로가 포함된 예외를 던진다")
@@ -213,6 +272,14 @@ class ProblemDefinitionLoaderTest {
 
   private static void writeMalformedUtf8(Path path) throws IOException {
     Files.write(path, new byte[] {(byte) 0xC3, 0x28});
+  }
+
+  private static void createSymbolicLinkOrSkip(Path link, Path target) throws IOException {
+    try {
+      Files.createSymbolicLink(link, target);
+    } catch (FileSystemException | UnsupportedOperationException | SecurityException exception) {
+      assumeTrue(false, "심볼릭 링크를 생성할 수 없음: " + exception.getMessage());
+    }
   }
 
   @FunctionalInterface
