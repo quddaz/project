@@ -1,5 +1,6 @@
 package com.woowapractice.common.presentation;
 
+import com.woowapractice.feedback.FeedbackNotFoundException;
 import com.woowapractice.grading.GitHubClientException;
 import com.woowapractice.grading.InvalidRepositoryException;
 import com.woowapractice.grading.SubmissionNotFoundException;
@@ -62,6 +63,15 @@ public class GlobalExceptionHandler {
         .body(
             new ApiErrorResponse(
                 "SUBMISSION_NOT_FOUND", exception.getMessage(), List.of(), getTraceId()));
+  }
+
+  @ExceptionHandler(FeedbackNotFoundException.class)
+  public ResponseEntity<ApiErrorResponse> handleFeedbackNotFound(
+      FeedbackNotFoundException exception) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(
+            new ApiErrorResponse(
+                "FEEDBACK_NOT_FOUND", exception.getMessage(), List.of(), getTraceId()));
   }
 
   @ExceptionHandler(InvalidProblemTestSourceException.class)
