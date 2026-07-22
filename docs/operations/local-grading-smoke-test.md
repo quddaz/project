@@ -35,7 +35,7 @@ The API is available at `http://localhost:8080`. Confirm it responds before
 starting the worker:
 
 ```bash
-curl --fail http://localhost:8080/api/problems
+curl --fail 'http://localhost:8080/api/problems?stage=ROUND_1'
 ```
 
 `SECURITY_ENABLED=false` is only for this local operational smoke test. The

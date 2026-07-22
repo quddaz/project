@@ -42,7 +42,7 @@ Delete the complete `worker` service block. Retain `mysql`, `api`, the named MyS
 
 Change the ADR status from `Proposed` to `Accepted` after the topology matches the decision.
 
-- [ ] **Step 4: Validate the rendered Compose topology (blocked: Docker CLI unavailable)**
+- [x] **Step 4: Validate the rendered Compose topology**
 
 Run: `docker compose config --services`
 
@@ -80,25 +80,25 @@ docker compose down
 
 State that the worker requires host Docker access and that GitHub OAuth validation is intentionally outside this smoke test.
 
-- [ ] **Step 2: Build application and grader images (blocked: Docker CLI unavailable)**
+- [x] **Step 2: Build application and grader images**
 
 Run: `docker compose build api` and `docker build -t woowapractice/grader:java21 docker/grader`
 
 Expected: both images build successfully.
 
-- [ ] **Step 3: Start MySQL and API with development security disabled (blocked: Docker CLI unavailable)**
+- [x] **Step 3: Start MySQL and API with development security disabled**
 
 Run: `SECURITY_ENABLED=false docker compose up -d mysql api`
 
-Expected: MySQL becomes healthy and API responds to `GET /api/problems`.
+Expected: MySQL becomes healthy and API responds to `GET /api/problems?stage=ROUND_1`.
 
-- [ ] **Step 4: Start the host worker and verify process startup (blocked: Docker CLI unavailable)**
+- [x] **Step 4: Start the host worker and verify process startup**
 
 Run the documented `workerRun` command with host database variables and inspect its startup log.
 
 Expected: it connects to MySQL, enables the worker profile, and starts polling without starting an HTTP server.
 
-- [x] **Step 5: Stop smoke-test processes and record any external blockers**
+- [ ] **Step 5: Stop smoke-test processes and record any external blockers**
 
 Run: `docker compose down`
 
@@ -113,6 +113,6 @@ git commit -m "docs: add local grading smoke test"
 
 ## Self-Review
 
-1. Spec coverage: Task 1 removes Docker daemon authority from Compose; Task 2 supplies the local API, MySQL, and host-worker verification flow. Live Docker validation is blocked because the Docker CLI is unavailable. AI is excluded.
-2. Placeholder scan: no placeholder implementation is present; the live Docker checks remain explicitly blocked and unchecked.
+1. Spec coverage: Task 1 removes Docker daemon authority from Compose; Task 2 starts and verifies the local API, MySQL, and host-worker flow. AI is excluded.
+2. Placeholder scan: no placeholder implementation is present; only intentional stack shutdown remains pending while the local services are running.
 3. Type consistency: all commands use the existing `workerRun` task, existing `GradingWorkerApplication`, and Docker Compose service names.
