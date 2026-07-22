@@ -63,6 +63,7 @@ class CommonApiErrorAcceptanceTest {
 
     // then
     response
+        .header("Allow", equalTo("GET"))
         .body("code", equalTo("METHOD_NOT_ALLOWED"))
         .body("message", equalTo("지원하지 않는 HTTP 메서드입니다."))
         .body("fieldErrors", empty())

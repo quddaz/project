@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -43,8 +44,13 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-  public ResponseEntity<ApiErrorResponse> handleHttpRequestMethodNotSupported() {
-    return createErrorResponse(HttpStatus.METHOD_NOT_ALLOWED, CommonErrorCode.METHOD_NOT_ALLOWED);
+  public ResponseEntity<ApiErrorResponse> handleHttpRequestMethodNotSupported(
+      HttpRequestMethodNotSupportedException exception) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setAllow(exception.getSupportedHttpMethods());
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+        .headers(headers)
+        .body(createErrorResponse(CommonErrorCode.METHOD_NOT_ALLOWED, getTraceId()));
   }
 
   @ExceptionHandler(MissingServletRequestParameterException.class)

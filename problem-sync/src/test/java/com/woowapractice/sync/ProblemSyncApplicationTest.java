@@ -42,6 +42,25 @@ class ProblemSyncApplicationTest {
   }
 
   @Test
+  @DisplayName("SpringApplication 실행 중 동기화 실패를 호출자에게 전파한다")
+  void run_invalidArguments_propagatesFailureFromSpringApplication() {
+    // given
+    var application = ProblemSyncApplication.createSpringApplication();
+
+    // when
+    Runnable run =
+        () ->
+            application.run(
+                "--spring.datasource.url=jdbc:h2:mem:problem-sync-launcher;MODE=MySQL;DATABASE_TO_LOWER=TRUE",
+                "--spring.datasource.username=sa",
+                "--spring.datasource.password=",
+                "--spring.jpa.hibernate.ddl-auto=validate");
+
+    // then
+    assertThatThrownBy(run::run).isInstanceOf(InvalidProblemSyncArgumentsException.class);
+  }
+
+  @Test
   @DisplayName("정의 루트 인자 하나로 문제를 불러와 동기화한다")
   void run_singleDefinitionsRoot_synchronizesLoadedCommands() throws IOException {
     // given

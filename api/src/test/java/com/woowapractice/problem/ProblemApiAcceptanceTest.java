@@ -145,6 +145,7 @@ class ProblemApiAcceptanceTest {
         .body("components.responses.BadRequest", notNullValue())
         .body("components.responses.NotFound", notNullValue())
         .body("components.responses.MethodNotAllowed", notNullValue())
+        .body("components.responses.MethodNotAllowed.headers.Allow", notNullValue())
         .body("components.responses.InternalServerError", notNullValue())
         .body("components.schemas.ApiErrorResponse", notNullValue());
   }
