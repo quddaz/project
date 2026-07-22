@@ -1,6 +1,5 @@
 package com.woowapractice.problem.presentation;
 
-import com.woowapractice.common.presentation.ApiErrorResponse;
 import com.woowapractice.problem.application.ProblemQueryService;
 import com.woowapractice.problem.domain.ProblemStage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,10 +28,9 @@ public class ProblemController {
         responseCode = "200",
         description = "문제 목록 조회 성공",
         content = @Content(schema = @Schema(implementation = ProblemResponse.ListResponse.class))),
-    @ApiResponse(
-        responseCode = "400",
-        description = "유효하지 않은 차수",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+    @ApiResponse(responseCode = "405", ref = "#/components/responses/MethodNotAllowed"),
+    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
   })
   @GetMapping
   public ProblemResponse.ListResponse findAll(
@@ -46,10 +44,9 @@ public class ProblemController {
         responseCode = "200",
         description = "문제 상세 조회 성공",
         content = @Content(schema = @Schema(implementation = ProblemResponse.Detail.class))),
-    @ApiResponse(
-        responseCode = "404",
-        description = "문제를 찾을 수 없음",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
+    @ApiResponse(responseCode = "405", ref = "#/components/responses/MethodNotAllowed"),
+    @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
   })
   @GetMapping("/{slug}")
   public ProblemResponse.Detail findBySlug(@PathVariable String slug) {

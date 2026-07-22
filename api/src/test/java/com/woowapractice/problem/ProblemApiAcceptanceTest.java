@@ -136,6 +136,16 @@ class ProblemApiAcceptanceTest {
         .body("openapi", startsWith("3.1"))
         .body("info.title", equalTo("Woowa Practice API"))
         .body("paths.'/api/problems'", notNullValue())
+        .body("paths.'/api/problems'.get.responses.'400'.'$ref'", notNullValue())
+        .body("paths.'/api/problems'.get.responses.'405'.'$ref'", notNullValue())
+        .body("paths.'/api/problems'.get.responses.'500'.'$ref'", notNullValue())
+        .body("paths.'/api/problems/{slug}'.get.responses.'404'.'$ref'", notNullValue())
+        .body("paths.'/api/problems/{slug}'.get.responses.'405'.'$ref'", notNullValue())
+        .body("paths.'/api/problems/{slug}'.get.responses.'500'.'$ref'", notNullValue())
+        .body("components.responses.BadRequest", notNullValue())
+        .body("components.responses.NotFound", notNullValue())
+        .body("components.responses.MethodNotAllowed", notNullValue())
+        .body("components.responses.InternalServerError", notNullValue())
         .body("components.schemas.ApiErrorResponse", notNullValue());
   }
 

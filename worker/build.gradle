@@ -2,6 +2,15 @@ plugins {
     id 'org.springframework.boot'
 }
 
+// This module stays a plain library until the grading-worker slice adds its real entry point.
+tasks.named('bootJar') {
+    enabled = false
+}
+
+tasks.named('jar') {
+    enabled = true
+}
+
 dependencies {
     implementation project(':grading')
     implementation project(':infrastructure')
