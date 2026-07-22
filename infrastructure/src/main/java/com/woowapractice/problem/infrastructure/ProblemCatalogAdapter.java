@@ -25,6 +25,11 @@ public class ProblemCatalogAdapter implements ProblemCatalog {
   }
 
   @Override
+  public Optional<Problem> findBySlug(String slug) {
+    return problemRepository.findBySlug(slug);
+  }
+
+  @Override
   public Problem save(Problem problem) {
     return problemRepository.save(problem);
   }

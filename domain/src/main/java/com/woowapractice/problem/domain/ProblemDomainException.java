@@ -11,4 +11,14 @@ public class ProblemDomainException extends RuntimeException {
     super(errorCode.getMessage());
     this.errorCode = errorCode;
   }
+
+  protected ProblemDomainException(ProblemErrorCode errorCode, String message) {
+    super(message);
+    this.errorCode = errorCode;
+  }
+
+  protected ProblemDomainException(ProblemErrorCode errorCode, String message, Throwable cause) {
+    super(message, cause);
+    this.errorCode = errorCode;
+  }
 }

@@ -57,6 +57,14 @@ public class ProblemVersion {
     return new ProblemVersion(version, javaVersion, testBundleRef, configChecksum);
   }
 
+  boolean hasVersion(int version) {
+    return this.version == version;
+  }
+
+  boolean hasChecksum(String configChecksum) {
+    return this.configChecksum.equals(configChecksum);
+  }
+
   void assignTo(Problem problem) {
     this.problem = problem;
   }

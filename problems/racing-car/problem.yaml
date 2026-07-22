@@ -1,0 +1,8 @@
+slug: racing-car
+title: 자동차 경주
+stage: ROUND_2
+displayOrder: 1
+starterRepositoryUrl: https://github.com/example/java-racingcar
+version: 1
+javaVersion: 21
+testBundleRef: racing-car/v1

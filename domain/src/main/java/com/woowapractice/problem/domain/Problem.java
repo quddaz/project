@@ -89,11 +89,44 @@ public class Problem {
     versions.add(version);
   }
 
+  public void synchronize(
+      String title,
+      ProblemStage stage,
+      int displayOrder,
+      String descriptionMarkdown,
+      String starterRepositoryUrl) {
+    this.title = title;
+    this.stage = stage;
+    this.displayOrder = displayOrder;
+    this.descriptionMarkdown = descriptionMarkdown;
+    this.starterRepositoryUrl = starterRepositoryUrl;
+    this.active = true;
+  }
+
+  public void publishVersion(
+      int version, int javaVersion, String testBundleRef, String configChecksum) {
+    ProblemVersion publishedVersion = findVersion(version);
+    if (publishedVersion == null) {
+      addVersion(ProblemVersion.create(version, javaVersion, testBundleRef, configChecksum));
+      return;
+    }
+    if (!publishedVersion.hasChecksum(configChecksum)) {
+      throw new ProblemVersionConflictException();
+    }
+  }
+
   public ProblemVersion currentVersion() {
     return versions.stream().max(Comparator.comparingInt(ProblemVersion::getVersion)).orElseThrow();
   }
 
   public List<ProblemVersion> getVersions() {
     return Collections.unmodifiableList(versions);
+  }
+
+  private ProblemVersion findVersion(int version) {
+    return versions.stream()
+        .filter(problemVersion -> problemVersion.hasVersion(version))
+        .findFirst()
+        .orElse(null);
   }
 }

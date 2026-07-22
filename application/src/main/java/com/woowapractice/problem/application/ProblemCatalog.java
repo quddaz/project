@@ -11,5 +11,7 @@ public interface ProblemCatalog {
 
   Optional<Problem> findActiveBySlug(String slug);
 
+  Optional<Problem> findBySlug(String slug);
+
   Problem save(Problem problem);
 }
