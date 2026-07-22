@@ -3,82 +3,599 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>문제 관리</title>
+  <title>문제 관리 | Woowa Practice</title>
   <style>
-    :root { color-scheme: light; font-family: Inter, Pretendard, sans-serif; }
-    body { margin: 0; background: #f5f7fa; color: #172033; }
-    main { max-width: 960px; margin: 0 auto; padding: 40px 20px 64px; }
-    h1 { margin: 0 0 28px; font-size: 28px; }
-    form { display: grid; gap: 16px; background: #fff; border: 1px solid #d9dee8; padding: 24px; }
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    label { display: grid; gap: 7px; font-size: 14px; font-weight: 650; }
-    input, select, textarea { box-sizing: border-box; width: 100%; border: 1px solid #c8cfdb; padding: 10px 12px; font: inherit; }
-    textarea { min-height: 260px; resize: vertical; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; }
-    button { width: fit-content; border: 0; background: #1769e0; color: #fff; padding: 11px 18px; font: inherit; font-weight: 700; cursor: pointer; }
-    button:disabled { opacity: .55; cursor: wait; }
-    #result { min-height: 24px; white-space: pre-wrap; }
-    .success { color: #147a42; }
-    .error { color: #b42318; }
-    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } main { padding-top: 24px; } }
+    :root {
+      color-scheme: light;
+      font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
+      --ink: #172033;
+      --muted: #667085;
+      --surface: #ffffff;
+      --canvas: #f4f6f8;
+      --line: #d7dce5;
+      --line-strong: #aeb7c6;
+      --primary: #175cd3;
+      --primary-soft: #eff4ff;
+      --success: #067647;
+      --success-soft: #ecfdf3;
+      --warning: #a15c07;
+      --warning-soft: #fffaeb;
+      --danger: #b42318;
+      --danger-soft: #fef3f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button, input, select, textarea, a { outline: none; }
+
+    :focus-visible {
+      outline: 3px solid rgba(23, 92, 211, .28);
+      outline-offset: 2px;
+    }
+
+    .app-header {
+      min-height: 64px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(1440px, 100%);
+      min-height: 64px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .brand { margin: 0; font-size: 18px; font-weight: 750; }
+    .brand span { color: var(--muted); font-weight: 550; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      width: min(1440px, 100%);
+      min-height: calc(100vh - 64px);
+      margin: 0 auto;
+      background: var(--surface);
+      border-inline: 1px solid var(--line);
+    }
+
+    .admin-list {
+      min-width: 0;
+      border-right: 1px solid var(--line);
+      background: #f9fafb;
+    }
+
+    .pane-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 58px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .pane-heading h2 { margin: 0; font-size: 15px; }
+
+    .count {
+      min-width: 28px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef0f3;
+      color: #475467;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .problem-list { display: grid; }
+
+    .problem-row {
+      display: grid;
+      gap: 5px;
+      width: 100%;
+      min-height: 82px;
+      padding: 13px 18px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-left: 3px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .problem-row:hover { background: #f1f4f8; }
+    .problem-row[aria-pressed="true"] { border-left-color: var(--primary); background: var(--primary-soft); }
+    .problem-row strong { overflow-wrap: anywhere; font-size: 14px; }
+    .problem-row code { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+
+    .row-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: 12px; }
+    .row-meta span:first-child { color: #344054; font-weight: 700; }
+
+    .list-state {
+      margin: 16px;
+      padding: 16px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .list-state.error { border-color: #f5b7b1; background: var(--danger-soft); color: var(--danger); }
+
+    .editor { min-width: 0; padding: 28px clamp(20px, 4vw, 56px) 64px; }
+
+    .editor-header { margin-bottom: 28px; }
+    .editor-header h1 { margin: 0 0 6px; font-size: 25px; }
+    .editor-header p { margin: 0; color: var(--muted); }
+
+    .editor-section + .editor-section {
+      margin-top: 36px;
+      padding-top: 36px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-title { margin: 0 0 4px; font-size: 18px; }
+    .section-description { margin: 0 0 22px; color: var(--muted); }
+
+    form { display: grid; gap: 24px; }
+
+    fieldset {
+      display: grid;
+      gap: 16px;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    legend { width: 100%; margin-bottom: 14px; font-size: 14px; font-weight: 750; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .form-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    label { display: grid; min-width: 0; gap: 7px; color: #344054; font-size: 13px; font-weight: 700; }
+
+    .label-hint { color: var(--muted); font-size: 12px; font-weight: 450; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #b9c2d0;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--ink);
+      padding: 9px 11px;
+    }
+
+    input, select { height: 42px; }
+    input::placeholder, textarea::placeholder { color: #98a2b3; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+
+    textarea { min-height: 140px; resize: vertical; }
+
+    textarea.source {
+      min-height: 280px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+
+    .form-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+    .command {
+      height: 42px;
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      background: var(--primary);
+      color: #fff;
+      padding: 0 18px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .command:hover { background: #134fae; }
+    .command:disabled { opacity: .6; cursor: wait; }
+
+    .feedback {
+      min-height: 22px;
+      margin: 0;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    .feedback.success { color: var(--success); }
+    .feedback.error {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .selected-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin: 0 0 24px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--line);
+    }
+
+    .selected-summary div { min-width: 0; padding: 12px 14px; background: #f9fafb; }
+    .selected-summary dt { margin-bottom: 3px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .selected-summary dd { margin: 0; overflow-wrap: anywhere; font-size: 13px; font-weight: 650; }
+    .selected-summary .wide { grid-column: span 2; }
+    .selected-summary a { color: var(--primary); }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 960px) {
+      .workspace { grid-template-columns: 1fr; border-inline: 0; }
+      .admin-list { border-right: 0; border-bottom: 1px solid var(--line); }
+      .problem-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .problem-row { border-right: 1px solid var(--line); }
+      .editor { padding-top: 24px; }
+    }
+
+    @media (max-width: 680px) {
+      .header-inner { padding-inline: 18px; }
+      .workspace { min-height: calc(100vh - 64px); }
+      .problem-list { grid-template-columns: 1fr; }
+      .problem-row { border-right: 0; }
+      .editor { padding: 22px 18px 48px; }
+      .editor-header h1 { font-size: 22px; }
+      .form-grid, .form-grid.three, .selected-summary { grid-template-columns: 1fr; }
+      .selected-summary .wide { grid-column: auto; }
+      .command { width: 100%; }
+      .feedback { width: 100%; }
+    }
   </style>
 </head>
 <body>
-<main>
-  <h1>문제 관리</h1>
-  <form id="problem-form">
-    <div class="grid">
-      <label>Slug <input name="slug" required maxlength="100" placeholder="racing-car"></label>
-      <label>제목 <input name="title" required maxlength="200"></label>
-      <label>차수
-        <select name="stage" required>
-          <option value="ROUND_1">1차</option><option value="ROUND_2">2차</option>
-          <option value="ROUND_3">3차</option><option value="ROUND_4">4차</option>
-          <option value="ROUND_5">5차</option><option value="FINAL">최종 테스트</option>
-        </select>
-      </label>
-      <label>표시 순서 <input name="displayOrder" type="number" min="1" value="1" required></label>
-      <label>Java 버전 <input name="javaVersion" type="number" min="8" value="21" required></label>
-      <label>문제 버전 <input name="version" type="number" min="1" value="1" required></label>
+<header class="app-header">
+  <div class="header-inner">
+    <p class="brand">Woowa Practice <span>/ 관리자</span></p>
+  </div>
+</header>
+
+<main class="workspace">
+  <section class="admin-list" aria-label="등록된 문제">
+    <div class="pane-heading">
+      <h2>등록된 문제</h2>
+      <span id="problem-count" class="count" aria-label="문제 수">0</span>
     </div>
-    <label>스타터 저장소 URL <input name="starterRepositoryUrl" type="url" required></label>
-    <label>문제 설명 <textarea name="description" required></textarea></label>
-    <label>공식 ApplicationTest.java <textarea name="applicationTestSource" required spellcheck="false"></textarea></label>
-    <button type="submit">문제 등록</button>
-    <div id="result" role="status"></div>
-  </form>
+    <div id="problem-list" class="problem-list" aria-live="polite">
+      <p class="list-state">문제 목록을 불러오는 중...</p>
+    </div>
+  </section>
+
+  <section class="editor">
+    <header class="editor-header">
+      <h1>문제 관리</h1>
+      <p>출제 정보와 채점용 공식 테스트를 관리합니다.</p>
+    </header>
+
+    <section class="editor-section" aria-labelledby="create-heading">
+      <h2 id="create-heading" class="section-title">새 문제 등록</h2>
+      <p class="section-description">첫 번째 버전과 공식 ApplicationTest.java를 함께 등록합니다.</p>
+
+      <form id="problem-form" novalidate>
+        <fieldset>
+          <legend>기본 정보</legend>
+          <div class="form-grid">
+            <label>Slug
+              <input name="slug" required maxlength="100" placeholder="racing-car" autocomplete="off">
+            </label>
+            <label>제목
+              <input name="title" required maxlength="200" placeholder="자동차 경주">
+            </label>
+          </div>
+          <div class="form-grid three">
+            <label>차수
+              <select name="stage" required>
+                <option value="ROUND_1">1차</option>
+                <option value="ROUND_2">2차</option>
+                <option value="ROUND_3">3차</option>
+                <option value="ROUND_4">4차</option>
+                <option value="ROUND_5">5차</option>
+                <option value="FINAL">최종 테스트</option>
+              </select>
+            </label>
+            <label>표시 순서
+              <input name="displayOrder" type="number" min="1" value="1" required>
+            </label>
+            <label>스타터 저장소 URL
+              <input name="starterRepositoryUrl" type="url" required maxlength="500" placeholder="https://github.com/...">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>문제 내용</legend>
+          <label>문제 설명 <span class="label-hint">Markdown 형식</span>
+            <textarea name="description" required placeholder="문제 설명을 입력하세요."></textarea>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>버전과 공식 테스트</legend>
+          <div class="form-grid">
+            <label>문제 버전
+              <input name="version" type="number" min="1" value="1" required>
+            </label>
+            <label>Java 버전
+              <input name="javaVersion" type="number" min="8" value="21" required>
+            </label>
+          </div>
+          <label>ApplicationTest.java
+            <textarea class="source" name="applicationTestSource" required spellcheck="false" placeholder="import camp.nextstep.edu.missionutils.test.NsTest;"></textarea>
+          </label>
+        </fieldset>
+
+        <div class="form-actions">
+          <button class="command" type="submit">문제 등록</button>
+          <p id="create-result" class="feedback" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section id="version-section" class="editor-section" aria-labelledby="version-heading" hidden>
+      <h2 id="version-heading" class="section-title">새 버전 발행</h2>
+      <p class="section-description"><strong id="selected-problem-name"></strong>에 새 채점 버전을 발행합니다.</p>
+
+      <dl id="selected-summary" class="selected-summary"></dl>
+
+      <form id="version-form" novalidate hidden>
+        <div class="form-grid">
+          <label>새 문제 버전
+            <input name="version" type="number" min="1" required>
+          </label>
+          <label>Java 버전
+            <input name="javaVersion" type="number" min="8" value="21" required>
+          </label>
+        </div>
+        <label>ApplicationTest.java
+          <textarea class="source" name="applicationTestSource" required spellcheck="false" placeholder="새 버전의 공식 테스트를 입력하세요."></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="command" type="submit">버전 발행</button>
+          <p id="version-result" class="feedback" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+  </section>
 </main>
+
 <script>
-  const form = document.querySelector('#problem-form');
-  const result = document.querySelector('#result');
-  form.addEventListener('submit', async (event) => {
+  const stageLabels = {
+    ROUND_1: '1차',
+    ROUND_2: '2차',
+    ROUND_3: '3차',
+    ROUND_4: '4차',
+    ROUND_5: '5차',
+    FINAL: '최종 테스트'
+  };
+
+  const state = { problems: [], selectedProblem: null };
+  const problemList = document.querySelector('#problem-list');
+  const problemCount = document.querySelector('#problem-count');
+  const problemForm = document.querySelector('#problem-form');
+  const versionSection = document.querySelector('#version-section');
+  const versionForm = document.querySelector('#version-form');
+  const createResult = document.querySelector('#create-result');
+  const versionResult = document.querySelector('#version-result');
+
+  async function request(url, options = {}) {
+    let response;
+    try {
+      response = await fetch(url, options);
+    } catch (error) {
+      throw new Error('서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+    }
+
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(body.message || '요청을 처리하지 못했습니다.');
+    }
+    return body;
+  }
+
+  function setFeedback(element, message = '', type = '') {
+    element.className = `feedback${type ? ` ${type}` : ''}`;
+    element.textContent = message;
+  }
+
+  function makeTextElement(tagName, text) {
+    const element = document.createElement(tagName);
+    element.textContent = text;
+    return element;
+  }
+
+  function renderProblemList() {
+    problemList.replaceChildren();
+    problemCount.textContent = String(state.problems.length);
+
+    if (state.problems.length === 0) {
+      const empty = makeTextElement('p', '아직 등록된 문제가 없습니다.');
+      empty.className = 'list-state';
+      problemList.append(empty);
+      return;
+    }
+
+    state.problems.forEach((problem) => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'problem-row';
+      row.dataset.slug = problem.slug;
+      row.setAttribute('aria-pressed', String(problem.slug === state.selectedProblem?.slug));
+
+      const title = makeTextElement('strong', problem.title);
+      const slug = makeTextElement('code', problem.slug);
+      const meta = document.createElement('span');
+      meta.className = 'row-meta';
+      meta.append(
+        makeTextElement('span', stageLabels[problem.stage] || problem.stage),
+        makeTextElement('span', `v${problem.version}`),
+        makeTextElement('span', `Java ${problem.javaVersion}`)
+      );
+      row.append(title, slug, meta);
+      row.addEventListener('click', () => selectProblem(problem.slug));
+      problemList.append(row);
+    });
+  }
+
+  function renderSelectedProblem() {
+    const problem = state.selectedProblem;
+    versionSection.hidden = !problem;
+    versionForm.hidden = !problem;
+    if (!problem) return;
+
+    document.querySelector('#selected-problem-name').textContent = `${problem.title} (${problem.slug})`;
+    const summary = document.querySelector('#selected-summary');
+    summary.replaceChildren();
+
+    const fields = [
+      ['현재 버전', `v${problem.version}`],
+      ['Java', String(problem.javaVersion)],
+      ['차수 / 순서', `${stageLabels[problem.stage] || problem.stage} / ${problem.displayOrder}`],
+      ['스타터 저장소', problem.starterRepositoryUrl, 'link'],
+      ['테스트 checksum', problem.testChecksum || '-', 'wide']
+    ];
+
+    fields.forEach(([label, value, type]) => {
+      const wrapper = document.createElement('div');
+      if (type === 'wide') wrapper.className = 'wide';
+      const term = makeTextElement('dt', label);
+      const description = document.createElement('dd');
+      if (type === 'link') {
+        const link = makeTextElement('a', value);
+        link.href = value;
+        link.target = '_blank';
+        link.rel = 'noreferrer';
+        description.append(link);
+      } else {
+        description.textContent = value;
+      }
+      wrapper.append(term, description);
+      summary.append(wrapper);
+    });
+
+    versionForm.elements.version.value = problem.version + 1;
+    versionForm.elements.javaVersion.value = problem.javaVersion;
+    versionForm.elements.applicationTestSource.value = '';
+    setFeedback(versionResult);
+  }
+
+  function selectProblem(slug) {
+    state.selectedProblem = state.problems.find((problem) => problem.slug === slug) || null;
+    renderProblemList();
+    renderSelectedProblem();
+  }
+
+  async function loadProblems(preferredSlug = state.selectedProblem?.slug) {
+    problemList.replaceChildren(Object.assign(
+      makeTextElement('p', '문제 목록을 불러오는 중...'),
+      { className: 'list-state' }
+    ));
+
+    try {
+      const problems = await request('/api/admin/problems');
+      if (!Array.isArray(problems)) throw new Error('문제 목록 응답 형식이 올바르지 않습니다.');
+      state.problems = problems;
+      state.selectedProblem = problems.find((problem) => problem.slug === preferredSlug) || null;
+      renderProblemList();
+      renderSelectedProblem();
+    } catch (error) {
+      state.problems = [];
+      state.selectedProblem = null;
+      problemCount.textContent = '0';
+      versionSection.hidden = true;
+      versionForm.hidden = true;
+      const message = makeTextElement('p', error.message);
+      message.className = 'list-state error';
+      problemList.replaceChildren(message);
+    }
+  }
+
+  problemForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const button = form.querySelector('button');
-    button.disabled = true;
-    result.className = '';
-    result.textContent = '등록 중...';
-    const data = Object.fromEntries(new FormData(form).entries());
+    const button = problemForm.querySelector('button[type="submit"]');
+    const data = Object.fromEntries(new FormData(problemForm).entries());
     data.displayOrder = Number(data.displayOrder);
     data.javaVersion = Number(data.javaVersion);
     data.version = Number(data.version);
+
+    button.disabled = true;
+    setFeedback(createResult, '등록 중...');
     try {
-      const response = await fetch('/api/admin/problems', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+      const created = await request('/api/admin/problems', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.message || '문제 등록에 실패했습니다.');
-      result.className = 'success';
-      result.textContent = `등록 완료: ${body.slug} v${body.version}\nchecksum: ${body.testChecksum}`;
-      form.reset();
-      form.querySelector('[name="displayOrder"]').value = 1;
-      form.querySelector('[name="javaVersion"]').value = 21;
-      form.querySelector('[name="version"]').value = 1;
+      problemForm.reset();
+      problemForm.elements.displayOrder.value = 1;
+      problemForm.elements.javaVersion.value = 21;
+      problemForm.elements.version.value = 1;
+      setFeedback(createResult, `${created.slug} v${created.version}을(를) 등록했습니다.`, 'success');
+      await loadProblems(created.slug);
     } catch (error) {
-      result.className = 'error';
-      result.textContent = error.message;
+      setFeedback(createResult, error.message, 'error');
     } finally {
       button.disabled = false;
     }
   });
+
+  versionForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedProblem = state.selectedProblem;
+    if (!selectedProblem) return;
+
+    const button = versionForm.querySelector('button[type="submit"]');
+    const data = Object.fromEntries(new FormData(versionForm).entries());
+    const payload = {
+      version: Number(data.version),
+      javaVersion: Number(data.javaVersion),
+      applicationTestSource: data.applicationTestSource
+    };
+
+    button.disabled = true;
+    setFeedback(versionResult, '버전을 발행하는 중...');
+    try {
+      const published = await request(`/api/admin/problems/${encodeURIComponent(selectedProblem.slug)}/versions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      await loadProblems(published.slug);
+      setFeedback(versionResult, `v${published.version}을(를) 발행했습니다.`, 'success');
+    } catch (error) {
+      setFeedback(versionResult, error.message, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  loadProblems();
 </script>
 </body>
 </html>
