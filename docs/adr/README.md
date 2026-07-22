@@ -32,3 +32,4 @@
 | [0010](0010-no-submission-source-snapshot.md) | 제출 소스 스냅샷 미보관 | Accepted |
 | [0011](0011-single-spring-project.md) | 단일 Spring Boot 프로젝트와 워커 실행 분리 | Accepted |
 | [0012](0012-database-managed-problems.md) | DB 기반 문제와 공식 테스트 관리 | Accepted |
+| [0013](0013-host-managed-grading-worker.md) | 호스트 관리형 채점 워커 | Accepted |
