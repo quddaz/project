@@ -1,5 +1,7 @@
 package com.woowapractice.common.presentation;
 
+import com.woowapractice.grading.InvalidRepositoryException;
+import com.woowapractice.grading.SubmissionNotFoundException;
 import com.woowapractice.problem.application.InvalidProblemTestSourceException;
 import com.woowapractice.problem.application.ProblemAlreadyExistsException;
 import com.woowapractice.problem.application.ProblemNotFoundException;
@@ -32,6 +34,24 @@ public class GlobalExceptionHandler {
         new ApiErrorResponse(
             exception.getErrorCode().name(), exception.getMessage(), List.of(), getTraceId());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidRepositoryException.class)
+  public ResponseEntity<ApiErrorResponse> handleInvalidRepository(
+      InvalidRepositoryException exception) {
+    return ResponseEntity.badRequest()
+        .body(
+            new ApiErrorResponse(
+                "INVALID_REPOSITORY", exception.getMessage(), List.of(), getTraceId()));
+  }
+
+  @ExceptionHandler(SubmissionNotFoundException.class)
+  public ResponseEntity<ApiErrorResponse> handleSubmissionNotFound(
+      SubmissionNotFoundException exception) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(
+            new ApiErrorResponse(
+                "SUBMISSION_NOT_FOUND", exception.getMessage(), List.of(), getTraceId()));
   }
 
   @ExceptionHandler(InvalidProblemTestSourceException.class)
