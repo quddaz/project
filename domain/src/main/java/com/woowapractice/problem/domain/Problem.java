@@ -88,6 +88,10 @@ public class Problem {
     versions.add(version);
   }
 
+  public ProblemVersion currentVersion() {
+    return versions.getLast();
+  }
+
   public List<ProblemVersion> getVersions() {
     return Collections.unmodifiableList(versions);
   }

@@ -11,3 +11,6 @@ spring:
       hibernate.jdbc.time_zone: UTC
   flyway:
     enabled: true
+springdoc:
+  api-docs:
+    version: openapi_3_1
