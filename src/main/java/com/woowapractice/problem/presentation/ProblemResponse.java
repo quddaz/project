@@ -31,7 +31,8 @@ public final class ProblemResponse {
       String descriptionMarkdown,
       String starterRepositoryUrl,
       int version,
-      int javaVersion) {
+      int javaVersion,
+      String testChecksum) {
 
     public static Detail from(ProblemDetail problem) {
       return new Detail(
@@ -42,7 +43,8 @@ public final class ProblemResponse {
           problem.descriptionMarkdown(),
           problem.starterRepositoryUrl(),
           problem.version(),
-          problem.javaVersion());
+          problem.javaVersion(),
+          problem.testChecksum());
     }
   }
 }

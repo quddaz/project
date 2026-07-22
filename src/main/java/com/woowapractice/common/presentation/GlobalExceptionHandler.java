@@ -1,5 +1,7 @@
 package com.woowapractice.common.presentation;
 
+import com.woowapractice.problem.application.InvalidProblemTestSourceException;
+import com.woowapractice.problem.application.ProblemAlreadyExistsException;
 import com.woowapractice.problem.application.ProblemNotFoundException;
 import com.woowapractice.problem.domain.ProblemErrorCode;
 import java.util.List;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,6 +32,38 @@ public class GlobalExceptionHandler {
         new ApiErrorResponse(
             exception.getErrorCode().name(), exception.getMessage(), List.of(), getTraceId());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidProblemTestSourceException.class)
+  public ResponseEntity<ApiErrorResponse> handleInvalidProblemTestSource(
+      InvalidProblemTestSourceException exception) {
+    return ResponseEntity.badRequest()
+        .body(
+            new ApiErrorResponse(
+                exception.getErrorCode().name(), exception.getMessage(), List.of(), getTraceId()));
+  }
+
+  @ExceptionHandler(ProblemAlreadyExistsException.class)
+  public ResponseEntity<ApiErrorResponse> handleProblemAlreadyExists(
+      ProblemAlreadyExistsException exception) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+            new ApiErrorResponse(
+                exception.getErrorCode().name(), exception.getMessage(), List.of(), getTraceId()));
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException exception) {
+    List<ApiErrorResponse.FieldError> fieldErrors =
+        exception.getBindingResult().getFieldErrors().stream()
+            .map(
+                error ->
+                    new ApiErrorResponse.FieldError(error.getField(), error.getDefaultMessage()))
+            .toList();
+    return ResponseEntity.badRequest()
+        .body(
+            new ApiErrorResponse("INVALID_REQUEST", "요청 값이 올바르지 않습니다.", fieldErrors, getTraceId()));
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)

@@ -12,7 +12,8 @@ public record ProblemDetail(
     String descriptionMarkdown,
     String starterRepositoryUrl,
     int version,
-    int javaVersion) {
+    int javaVersion,
+    String testChecksum) {
 
   public static ProblemDetail from(Problem problem) {
     ProblemVersion currentVersion = problem.currentVersion();
@@ -24,6 +25,7 @@ public record ProblemDetail(
         problem.getDescriptionMarkdown(),
         problem.getStarterRepositoryUrl(),
         currentVersion.getVersion(),
-        currentVersion.getJavaVersion());
+        currentVersion.getJavaVersion(),
+        currentVersion.getConfigChecksum());
   }
 }

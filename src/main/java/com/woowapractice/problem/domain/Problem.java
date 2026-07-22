@@ -115,6 +115,24 @@ public class Problem {
     }
   }
 
+  public void publishVersion(
+      int version,
+      int javaVersion,
+      String testBundleRef,
+      String applicationTestSource,
+      String configChecksum) {
+    ProblemVersion publishedVersion = findVersion(version);
+    if (publishedVersion == null) {
+      addVersion(
+          ProblemVersion.create(
+              version, javaVersion, testBundleRef, applicationTestSource, configChecksum));
+      return;
+    }
+    if (!publishedVersion.hasChecksum(configChecksum)) {
+      throw new ProblemVersionConflictException();
+    }
+  }
+
   public ProblemVersion currentVersion() {
     return versions.stream().max(Comparator.comparingInt(ProblemVersion::getVersion)).orElseThrow();
   }

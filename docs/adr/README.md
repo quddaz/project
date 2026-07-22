@@ -25,9 +25,10 @@
 | [0003](0003-runtime-test-injection-in-docker.md) | Docker 런타임 테스트 주입 | Accepted |
 | [0004](0004-java-spring-jpa-mysql-stack.md) | Java·Spring Boot·JPA·MySQL 기술 스택 | Accepted |
 | [0005](0005-acceptance-test-led-tdd.md) | RestAssured 중심 인수 테스트 TDD | Accepted |
-| [0006](0006-git-managed-problem-definitions.md) | Git 기반 문제 정의 관리 | Accepted |
+| [0006](0006-git-managed-problem-definitions.md) | Git 기반 문제 정의 관리 | Superseded |
 | [0007](0007-ten-concurrent-gradings.md) | 단일 서버 동시 채점 10건 | Accepted |
 | [0008](0008-openapi-and-swagger-ui.md) | OpenAPI 명세와 Swagger UI | Accepted |
 | [0009](0009-nstest-canonical-test-bundles.md) | NsTest 공식 테스트 번들 | Accepted |
 | [0010](0010-no-submission-source-snapshot.md) | 제출 소스 스냅샷 미보관 | Accepted |
 | [0011](0011-single-spring-project.md) | 단일 Spring Boot 프로젝트와 워커 실행 분리 | Accepted |
+| [0012](0012-database-managed-problems.md) | DB 기반 문제와 공식 테스트 관리 | Accepted |

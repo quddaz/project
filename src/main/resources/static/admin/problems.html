@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>문제 관리</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, Pretendard, sans-serif; }
+    body { margin: 0; background: #f5f7fa; color: #172033; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 20px 64px; }
+    h1 { margin: 0 0 28px; font-size: 28px; }
+    form { display: grid; gap: 16px; background: #fff; border: 1px solid #d9dee8; padding: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    label { display: grid; gap: 7px; font-size: 14px; font-weight: 650; }
+    input, select, textarea { box-sizing: border-box; width: 100%; border: 1px solid #c8cfdb; padding: 10px 12px; font: inherit; }
+    textarea { min-height: 260px; resize: vertical; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; }
+    button { width: fit-content; border: 0; background: #1769e0; color: #fff; padding: 11px 18px; font: inherit; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: wait; }
+    #result { min-height: 24px; white-space: pre-wrap; }
+    .success { color: #147a42; }
+    .error { color: #b42318; }
+    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } main { padding-top: 24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>문제 관리</h1>
+  <form id="problem-form">
+    <div class="grid">
+      <label>Slug <input name="slug" required maxlength="100" placeholder="racing-car"></label>
+      <label>제목 <input name="title" required maxlength="200"></label>
+      <label>차수
+        <select name="stage" required>
+          <option value="ROUND_1">1차</option><option value="ROUND_2">2차</option>
+          <option value="ROUND_3">3차</option><option value="ROUND_4">4차</option>
+          <option value="ROUND_5">5차</option><option value="FINAL">최종 테스트</option>
+        </select>
+      </label>
+      <label>표시 순서 <input name="displayOrder" type="number" min="1" value="1" required></label>
+      <label>Java 버전 <input name="javaVersion" type="number" min="8" value="21" required></label>
+      <label>문제 버전 <input name="version" type="number" min="1" value="1" required></label>
+    </div>
+    <label>스타터 저장소 URL <input name="starterRepositoryUrl" type="url" required></label>
+    <label>문제 설명 <textarea name="description" required></textarea></label>
+    <label>공식 ApplicationTest.java <textarea name="applicationTestSource" required spellcheck="false"></textarea></label>
+    <button type="submit">문제 등록</button>
+    <div id="result" role="status"></div>
+  </form>
+</main>
+<script>
+  const form = document.querySelector('#problem-form');
+  const result = document.querySelector('#result');
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('button');
+    button.disabled = true;
+    result.className = '';
+    result.textContent = '등록 중...';
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.displayOrder = Number(data.displayOrder);
+    data.javaVersion = Number(data.javaVersion);
+    data.version = Number(data.version);
+    try {
+      const response = await fetch('/api/admin/problems', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.message || '문제 등록에 실패했습니다.');
+      result.className = 'success';
+      result.textContent = `등록 완료: ${body.slug} v${body.version}\nchecksum: ${body.testChecksum}`;
+      form.reset();
+      form.querySelector('[name="displayOrder"]').value = 1;
+      form.querySelector('[name="javaVersion"]').value = 21;
+      form.querySelector('[name="version"]').value = 1;
+    } catch (error) {
+      result.className = 'error';
+      result.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

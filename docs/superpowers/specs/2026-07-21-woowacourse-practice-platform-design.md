@@ -31,16 +31,7 @@ MVP는 개인 학습 흐름과 안정적인 채점에 집중한다. 점수, 사�
 - `ROUND_5`: 5차
 - `FINAL`: 최종 테스트
 
-같은 차수에 여러 문제가 생길 수 있으므로 `display_order`를 둔다. 문제 정의는 Git 저장소에서 다음 구조로 관리한다.
-
-```text
-problems/<slug>/
-  problem.yaml
-  README.md
-  tests/
-```
-
-`problem.yaml`은 제목, 차수, 표시 순서, 스타터 저장소 URL, Java 버전, 실행 제한, 문제 버전을 포함한다. `README.md`는 문제 설명이며 `tests/`는 채점 시 주입할 공개 테스트다. 배포 담당자가 단일 프로젝트의 sync 실행 명령을 호출하면 모든 정의를 검증한 뒤 하나의 트랜잭션으로 DB에 반영한다. 애플리케이션 시작 시 자동 동기화하지 않고 관리자 수정 API도 제공하지 않는다.
+같은 차수에 여러 문제가 생길 수 있으므로 `display_order`를 둔다. 문제 설명과 공식 `ApplicationTest.java` 소스는 관리자 등록 API와 관리자 페이지를 통해 DB에 저장한다. YAML, README, 별도 문제 저장소는 사용하지 않는다. 등록 시 테스트 소스의 `ApplicationTest`·`NsTest`·`runMain` 계약과 크기를 검증하고 SHA-256 checksum을 생성한다. 공개된 문제 버전은 수정하지 않고 새 버전을 등록한다.
 
 제출 저장소와 공식 테스트 번들은 하나의 고정된 프리코스 실행 환경을 따른다. 제출 프로젝트는 `src/main/java/Application.java`의 `Application.main(String[])` 진입점과 `src/test/java/ApplicationTest.java` 테스트 위치를 사용한다. 공식 테스트는 `NsTest`를 상속하고 `run(...)`, `output()`, `runException(...)`, `assertRandomNumberInRangeTest(...)`로 입력·출력·예외·랜덤 동작을 검증한다. 워커는 공식 테스트를 주입한 뒤 `./gradlew test --tests ApplicationTest`를 실행한다. 문제별 차이는 Gradle 모듈이나 실행 스크립트가 아니라 공식 `ApplicationTest`의 입력, 기대 출력, 예외 조건이다.
 
@@ -55,7 +46,7 @@ problems/<slug>/
 ### problems와 problem_versions
 
 - `problems`: `slug`, 제목, 설명, `stage`, `display_order`, 스타터 저장소 URL, 활성 여부
-- `problem_versions`: 문제 버전, Java 버전, 테스트 번들 참조, 설정 checksum, 게시 시각
+- `problem_versions`: 문제 버전, Java 버전, 공식 `ApplicationTest.java` 소스, 테스트 checksum, 게시 시각
 - 제출은 항상 특정 `problem_version`을 참조한다.
 
 ### submissions
@@ -105,7 +96,7 @@ problems/<slug>/
 5. API는 `submission`과 `grading_job`을 하나의 트랜잭션으로 생성한다.
 6. 워커는 실행 가능한 작업을 행 잠금과 `SKIP LOCKED`로 선점하고 제출을 `RUNNING`으로 바꾼다.
 7. 워커는 저장소를 임시 공간에 얕게 clone하고 확정된 SHA를 checkout한다.
-8. 서버가 보관한 공식 `ApplicationTest`와 `NsTest` 지원 코드를 제출 프로젝트에 주입한다.
+8. DB에 저장된 해당 문제 버전의 공식 `ApplicationTest`와 `NsTest` 지원 코드를 제출 프로젝트에 주입한다.
 9. 일회성 Docker 샌드박스에서 `./gradlew test --tests ApplicationTest`를 실행한다.
 10. 테스트별 결과와 최종 상태를 저장하고 컨테이너 및 임시 작업공간을 폐기한다.
 

@@ -37,6 +37,9 @@ public class ProblemVersion {
   @Column(name = "test_bundle_ref", nullable = false, length = 300)
   private String testBundleRef;
 
+  @Column(name = "application_test_source", nullable = false, columnDefinition = "LONGTEXT")
+  private String applicationTestSource;
+
   @Column(name = "config_checksum", nullable = false, length = 64)
   private String configChecksum;
 
@@ -44,17 +47,32 @@ public class ProblemVersion {
   private Instant publishedAt;
 
   private ProblemVersion(
-      int version, int javaVersion, String testBundleRef, String configChecksum) {
+      int version,
+      int javaVersion,
+      String testBundleRef,
+      String applicationTestSource,
+      String configChecksum) {
     this.version = version;
     this.javaVersion = javaVersion;
     this.testBundleRef = testBundleRef;
+    this.applicationTestSource = applicationTestSource;
     this.configChecksum = configChecksum;
     this.publishedAt = Instant.now();
   }
 
   public static ProblemVersion create(
       int version, int javaVersion, String testBundleRef, String configChecksum) {
-    return new ProblemVersion(version, javaVersion, testBundleRef, configChecksum);
+    return new ProblemVersion(version, javaVersion, testBundleRef, "", configChecksum);
+  }
+
+  public static ProblemVersion create(
+      int version,
+      int javaVersion,
+      String testBundleRef,
+      String applicationTestSource,
+      String configChecksum) {
+    return new ProblemVersion(
+        version, javaVersion, testBundleRef, applicationTestSource, configChecksum);
   }
 
   boolean hasVersion(int version) {
