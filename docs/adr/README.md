@@ -29,3 +29,4 @@
 | [0007](0007-ten-concurrent-gradings.md) | 단일 서버 동시 채점 10건 | Accepted |
 | [0008](0008-openapi-and-swagger-ui.md) | OpenAPI 명세와 Swagger UI | Accepted |
 | [0009](0009-nstest-canonical-test-bundles.md) | NsTest 공식 테스트 번들 | Accepted |
+| [0010](0010-no-submission-source-snapshot.md) | 제출 소스 스냅샷 미보관 | Accepted |
