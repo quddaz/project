@@ -696,7 +696,7 @@ git commit -m "feat: expose problem catalog api"
 - Create: `problem-sync/src/test/java/com/woowapractice/sync/ProblemSyncAcceptanceTest.java`
 - Create: `problems/racing-car/problem.yaml`
 - Create: `problems/racing-car/README.md`
-- Create: `problems/racing-car/tests/.gitkeep`
+- Create: `problems/racing-car/tests/ApplicationTest.java`
 
 **Interfaces:**
 - Consumes: `ProblemCatalog.save(Problem)` and problem aggregate factories from Task 2.
@@ -825,12 +825,36 @@ javaVersion: 21
 testBundleRef: racing-car/v1
 ```
 
-Create `README.md` with this exact content. Keep `tests/.gitkeep` until the grading plan adds executable public tests.
+Create `README.md` with this exact content. Create `tests/ApplicationTest.java` as a non-platform-compiled official test bundle fixture; the later grading plan supplies the `NsTest` dependency and executes it inside the fixed Docker environment.
 
 ```markdown
 # 자동차 경주
 
 자동차 경주 문제 정의의 동기화와 조회 흐름을 검증하기 위한 개발용 문제입니다.
+```
+
+Create `tests/ApplicationTest.java`:
+
+```java
+class ApplicationTest extends NsTest {
+
+    @Test
+    void run_success_byValidInput() {
+        run("pobi,woni", "1");
+        assertThat(output()).isNotEmpty();
+    }
+
+    @Test
+    void runException_fail_byInvalidInput() {
+        assertThatThrownBy(() -> runException("pobi,javaji", "1"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Override
+    public void runMain() {
+        Application.main(new String[]{});
+    }
+}
 ```
 
 - [ ] **Step 7: Run the complete first-slice verification**
