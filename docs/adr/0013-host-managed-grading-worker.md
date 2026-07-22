@@ -14,7 +14,7 @@
 
 ## 결정
 
-초기 운영 환경에서 Docker Compose는 MySQL과 API만 기동한다. 채점 워커는 Docker CLI와 소켓 접근 권한을 가진 전용 호스트 프로세스로 실행한다. `./gradlew workerRun`은 동일한 애플리케이션 JAR의 워커 전용 진입점으로 동작하며, API와 같은 MySQL에 연결한다.
+초기 운영 환경에서 Docker Compose는 MySQL과 API만 기동한다. 채점 워커는 Docker CLI와 소켓 접근 권한을 가진 전용 호스트 프로세스로 실행한다. `./gradlew workerRun`은 동일한 Gradle 프로젝트의 워커 전용 진입점으로 동작하며, API와 같은 MySQL에 연결한다.
 
 로컬 검증은 `SECURITY_ENABLED=false`로 API와 MySQL을 Compose에서 기동하고, 호스트 워커가 공개 GitHub 저장소와 로컬 Docker 샌드박스를 사용해 작업을 처리하는 방식으로 수행한다. OAuth 실사용 검증은 GitHub OAuth 앱 자격 증명이 준비된 별도 단계로 둔다.
 
