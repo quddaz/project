@@ -34,28 +34,57 @@
     }
 
     .site-header {
-      min-height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 0 24px;
+      min-height: 58px;
       border-bottom: 1px solid var(--line);
       background: var(--surface);
+    }
+    .header-inner {
+      width: 100%;
+      max-width: 1240px;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
     .brand {
       display: flex;
       align-items: baseline;
       gap: 9px;
       margin: 0;
+      color: var(--ink);
       font-size: 18px;
+      font-weight: 800;
       line-height: 1.3;
+      text-decoration: none;
     }
     .brand small { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .site-nav {
+      align-self: stretch;
+      display: flex;
+      align-items: stretch;
+    }
+    .nav-link {
+      min-width: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .nav-link[aria-current="page"] {
+      border-bottom-color: var(--accent);
+      color: var(--accent-dark);
+    }
     .login-link {
       min-height: 34px;
       display: inline-flex;
       align-items: center;
+      margin-left: auto;
       padding: 0 12px;
       border: 1px solid var(--line-strong);
       border-radius: 5px;
@@ -66,6 +95,39 @@
       text-decoration: none;
     }
     .login-link:hover { border-color: var(--accent); color: var(--accent-dark); }
+
+    .problem-banner {
+      width: calc(100% - 48px);
+      max-width: 1192px;
+      min-height: 196px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 28px auto 20px;
+      padding: 34px 40px;
+      border: 1px solid #cce4d6;
+      border-radius: 8px;
+      background: #edf7f1;
+    }
+    .banner-eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent-dark);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .problem-banner h1 {
+      margin: 0 0 10px;
+      color: #18291f;
+      font-size: 36px;
+      line-height: 1.2;
+    }
+    .problem-banner p:last-child {
+      max-width: 560px;
+      margin: 0;
+      color: #526158;
+      font-size: 14px;
+      line-height: 1.7;
+    }
 
     .stage-bar { border-bottom: 1px solid var(--line); background: var(--surface); }
     .stage-tabs {
@@ -102,7 +164,7 @@
       width: 100%;
       max-width: 1240px;
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
+      grid-template-columns: minmax(560px, 1.3fr) minmax(360px, .9fr);
       gap: 16px;
       margin: 0 auto;
       padding: 20px 24px 48px;
@@ -125,15 +187,29 @@
     }
     .pane-heading h2 { margin: 0; font-size: 15px; }
     .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .problem-list-heading {
+      min-height: 38px;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 84px 88px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      background: #f8faf8;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .problem-list-heading span:last-child { text-align: center; }
     .problem-list { display: grid; }
     .problem-row {
       width: 100%;
-      min-height: 64px;
+      min-height: 58px;
       display: grid;
-      grid-template-columns: 36px minmax(0, 1fr) auto;
+      grid-template-columns: 64px minmax(0, 1fr) 84px 88px;
       align-items: center;
-      gap: 5px 9px;
-      padding: 11px 14px;
+      gap: 12px;
+      padding: 10px 16px;
       border: 0;
       border-bottom: 1px solid var(--line);
       border-radius: 0;
@@ -149,7 +225,6 @@
       background: var(--accent-soft);
     }
     .problem-order {
-      grid-row: 1 / 3;
       color: var(--muted);
       font-size: 12px;
       font-variant-numeric: tabular-nums;
@@ -160,8 +235,8 @@
       font-size: 14px;
       font-weight: 700;
     }
-    .problem-stage { color: var(--muted); font-size: 11px; }
-    .problem-row .status-chip { grid-row: 1 / 3; grid-column: 3; }
+    .problem-stage { color: var(--muted); font-size: 12px; }
+    .problem-row .status-chip { justify-self: center; }
 
     .empty-state, .loading-state, .select-state {
       margin: 0;
@@ -342,7 +417,13 @@
     }
 
     @media (max-width: 860px) {
-      .site-header { padding: 0 18px; }
+      .header-inner { padding: 0 18px; }
+      .problem-banner {
+        width: calc(100% - 36px);
+        min-height: 174px;
+        margin-top: 20px;
+        padding: 28px 30px;
+      }
       .stage-tabs { padding-left: 18px; padding-right: 18px; }
       .workspace { grid-template-columns: 1fr; padding: 16px 18px 36px; }
       .work-panel { min-height: 360px; padding: 22px 18px 26px; }
@@ -351,8 +432,27 @@
     @media (max-width: 540px) {
       .brand { font-size: 16px; }
       .brand small { display: none; }
+      .header-inner { gap: 18px; padding: 0 12px; }
+      .nav-link { min-width: 42px; font-size: 13px; }
       .login-link { padding: 0 9px; font-size: 12px; }
+      .problem-banner {
+        width: calc(100% - 20px);
+        min-height: 152px;
+        margin: 14px auto;
+        padding: 24px 20px;
+      }
+      .problem-banner h1 { font-size: 30px; }
+      .problem-banner p:last-child { font-size: 13px; }
       .workspace { padding-left: 10px; padding-right: 10px; }
+      .problem-list-heading,
+      .problem-row {
+        grid-template-columns: 46px minmax(0, 1fr) 52px 74px;
+        gap: 7px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .problem-title { font-size: 13px; }
+      .status-chip { padding-left: 6px; padding-right: 6px; font-size: 10px; }
       .work-header h2 { font-size: 20px; }
       .grading-result { grid-template-columns: 1fr; }
       .grading-copy { align-items: flex-start; flex-direction: column; }
@@ -363,9 +463,20 @@
 </head>
 <body>
   <header class="site-header">
-    <h1 class="brand">Woowa Practice <small>코드 연습</small></h1>
-    <a class="login-link" href="/oauth2/authorization/github">GitHub 로그인</a>
+    <div class="header-inner">
+      <a class="brand" href="/">Woowa Practice <small>코드 연습</small></a>
+      <nav class="site-nav" aria-label="주요 메뉴">
+        <a class="nav-link" href="/" aria-current="page">문제</a>
+      </nav>
+      <a class="login-link" href="/oauth2/authorization/github">GitHub 로그인</a>
+    </div>
   </header>
+
+  <section class="problem-banner" aria-labelledby="problem-banner-title">
+    <p class="banner-eyebrow">PRECOURSE PRACTICE</p>
+    <h1 id="problem-banner-title">문제</h1>
+    <p>GitHub 저장소를 제출해 프리코스 과제를 검증하세요.</p>
+  </section>
 
   <nav class="stage-bar" aria-label="프리코스 차수">
     <div id="stage-tabs" class="stage-tabs" role="tablist" aria-label="문제 차수 선택"></div>
@@ -376,6 +487,12 @@
       <div class="pane-heading">
         <h2>문제 목록</h2>
         <span id="problem-count" class="count">불러오는 중</span>
+      </div>
+      <div class="problem-list-heading" aria-hidden="true">
+        <span>번호</span>
+        <span>문제</span>
+        <span>차수</span>
+        <span>결과</span>
       </div>
       <div id="problem-list" class="problem-list" role="tabpanel" aria-live="polite"></div>
     </section>
@@ -503,7 +620,7 @@
             <span class="problem-order">#${escapeHtml(problem.displayOrder)}</span>
             <span class="problem-title">${escapeHtml(problem.title)}</span>
             <span class="problem-stage">${escapeHtml(stageLabel(problem.stage))}</span>
-            ${knownStatus ? statusChip(knownStatus) : ''}
+            ${knownStatus ? statusChip(knownStatus) : '<span class="status-chip">미제출</span>'}
           </button>
         `;
       }).join('');
