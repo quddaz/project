@@ -35,7 +35,7 @@ Move the current `index.html` problem workspace to `problems.html` with its exis
 ## Data Flow
 
 - Home reads `GET /api/problems?stage=<stage>` as needed to calculate the total public problem count across stages.
-- Home stores the latest successful submission made during the current browser session in local storage and displays only its status. It does not introduce a new backend API.
+- Home stores the latest status for each problem submitted in the current browser in local storage. It displays the newest status and counts the locally known passed problems. It does not introduce a new backend API.
 - The problem page continues using the existing problem and submission APIs.
 - API failures render localized, plain-language empty states without blocking navigation.
 

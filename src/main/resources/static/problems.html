@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Woowa Practice</title>
+  <style>
+    :root {
+      --ink: #202421;
+      --muted: #69716c;
+      --canvas: #f5f7f5;
+      --surface: #ffffff;
+      --line: #dfe4e0;
+      --line-strong: #c5cdc7;
+      --accent: #1f8f5f;
+      --accent-dark: #167349;
+      --accent-soft: #edf8f2;
+      --warning: #996515;
+      --warning-soft: #fff8e7;
+      --danger: #b23a34;
+      --danger-soft: #fff1ef;
+      font-family: Inter, Pretendard, "Noto Sans KR", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; background: var(--canvas); }
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid rgba(31, 143, 95, .24);
+      outline-offset: 2px;
+    }
+
+    .site-header {
+      min-height: 58px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .header-inner {
+      width: 100%;
+      max-width: 1240px;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      margin: 0;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.3;
+      text-decoration: none;
+    }
+    .brand small { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .site-nav {
+      align-self: stretch;
+      display: flex;
+      align-items: stretch;
+    }
+    .nav-link {
+      min-width: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .nav-link[aria-current="page"] {
+      border-bottom-color: var(--accent);
+      color: var(--accent-dark);
+    }
+    .login-link {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      margin-left: auto;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
+      color: var(--ink);
+      background: var(--surface);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .login-link:hover { border-color: var(--accent); color: var(--accent-dark); }
+
+    .problem-banner {
+      width: calc(100% - 48px);
+      max-width: 1192px;
+      min-height: 196px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 28px auto 20px;
+      padding: 34px 40px;
+      border: 1px solid #cce4d6;
+      border-radius: 8px;
+      background: #edf7f1;
+    }
+    .banner-eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent-dark);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .problem-banner h1 {
+      margin: 0 0 10px;
+      color: #18291f;
+      font-size: 36px;
+      line-height: 1.2;
+    }
+    .problem-banner p:last-child {
+      max-width: 560px;
+      margin: 0;
+      color: #526158;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .stage-bar { border-bottom: 1px solid var(--line); background: var(--surface); }
+    .stage-tabs {
+      width: 100%;
+      max-width: 1240px;
+      display: flex;
+      gap: 18px;
+      margin: 0 auto;
+      padding: 0 24px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .stage-tab {
+      min-width: 56px;
+      min-height: 45px;
+      padding: 2px 3px 0;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      color: var(--muted);
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .stage-tab:hover { color: var(--ink); }
+    .stage-tab[aria-selected="true"] {
+      border-bottom-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .workspace {
+      width: 100%;
+      max-width: 1240px;
+      display: grid;
+      grid-template-columns: minmax(560px, 1.3fr) minmax(360px, .9fr);
+      gap: 16px;
+      margin: 0 auto;
+      padding: 20px 24px 48px;
+    }
+    .problem-pane, .work-panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+    .problem-pane { align-self: start; overflow: hidden; }
+    .pane-heading {
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .pane-heading h2 { margin: 0; font-size: 15px; }
+    .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .problem-list-heading {
+      min-height: 38px;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 84px 88px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      background: #f8faf8;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .problem-list-heading span:last-child { text-align: center; }
+    .problem-list { display: grid; }
+    .problem-row {
+      width: 100%;
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 84px 88px;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      color: var(--ink);
+      background: var(--surface);
+      text-align: left;
+      cursor: pointer;
+    }
+    .problem-row:last-child { border-bottom: 0; }
+    .problem-row:hover { background: #f8faf8; }
+    .problem-row[aria-current="true"] {
+      box-shadow: inset 3px 0 0 var(--accent);
+      background: var(--accent-soft);
+    }
+    .problem-order {
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .problem-title {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .problem-stage { color: var(--muted); font-size: 12px; }
+    .problem-row .status-chip { justify-self: center; }
+
+    .empty-state, .loading-state, .select-state {
+      margin: 0;
+      padding: 36px 20px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .work-panel { min-height: 470px; padding: 24px 26px 30px; }
+    .work-header {
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .work-header h2 {
+      margin: 5px 0 6px;
+      font-size: 22px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .eyebrow { margin: 0; color: var(--accent-dark); font-size: 12px; font-weight: 800; }
+    .meta { margin: 0; color: var(--muted); font-size: 12px; }
+    .problem-description {
+      margin: 20px 0;
+      color: #39413c;
+      font-size: 14px;
+      line-height: 1.75;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+    .starter-link {
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .starter-link:hover { text-decoration-thickness: 2px; }
+
+    .submission-section, .result-section {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+    .section-heading { margin: 0 0 13px; font-size: 15px; }
+    .submission-form { display: grid; gap: 13px; }
+    .form-field { display: grid; gap: 6px; }
+    .form-field label { font-size: 12px; font-weight: 700; }
+    .form-field input {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
+      color: var(--ink);
+      background: var(--surface);
+    }
+    .form-field input:hover { border-color: #9fa9a2; }
+    .form-field input:focus { border-color: var(--accent); }
+    .form-field input::placeholder { color: #929a95; }
+    .field-help { margin: 0; color: var(--muted); font-size: 11px; }
+    .command-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .button {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button-primary { color: #fff; background: var(--accent); }
+    .button-primary:hover { background: var(--accent-dark); }
+    .button-secondary {
+      border-color: var(--line-strong);
+      color: var(--ink);
+      background: var(--surface);
+    }
+    .button-secondary:hover { border-color: var(--accent); color: var(--accent-dark); }
+    .button:disabled { opacity: .58; cursor: not-allowed; }
+
+    .inline-message {
+      margin: 11px 0 0;
+      padding: 9px 11px;
+      border-left: 3px solid #8e9891;
+      color: #515b54;
+      background: #f3f5f3;
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    .inline-message.success {
+      border-left-color: var(--accent);
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+    }
+    .inline-message.error {
+      border-left-color: var(--danger);
+      color: #8f2c27;
+      background: var(--danger-soft);
+    }
+    .inline-message a { color: inherit; font-weight: 700; }
+
+    .status-chip {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      color: #59635c;
+      background: #f3f5f3;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .status-chip.success {
+      border-color: #acd8c0;
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+    }
+    .status-chip.warning {
+      border-color: #ead397;
+      color: var(--warning);
+      background: var(--warning-soft);
+    }
+    .status-chip.danger {
+      border-color: #e8b8b4;
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .grading-result {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: 5px;
+      background: #fbfcfb;
+    }
+    .grading-copy {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .grading-copy p {
+      margin: 0;
+      color: #465049;
+      font-size: 13px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    .result-error {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--danger);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #page-status {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 860px) {
+      .header-inner { padding: 0 18px; }
+      .problem-banner {
+        width: calc(100% - 36px);
+        min-height: 174px;
+        margin-top: 20px;
+        padding: 28px 30px;
+      }
+      .stage-tabs { padding-left: 18px; padding-right: 18px; }
+      .workspace { grid-template-columns: 1fr; padding: 16px 18px 36px; }
+      .work-panel { min-height: 360px; padding: 22px 18px 26px; }
+    }
+
+    @media (max-width: 540px) {
+      .brand { font-size: 16px; }
+      .brand small { display: none; }
+      .header-inner { gap: 18px; padding: 0 12px; }
+      .nav-link { min-width: 42px; font-size: 13px; }
+      .login-link { padding: 0 9px; font-size: 12px; }
+      .problem-banner {
+        width: calc(100% - 20px);
+        min-height: 152px;
+        margin: 14px auto;
+        padding: 24px 20px;
+      }
+      .problem-banner h1 { font-size: 30px; }
+      .problem-banner p:last-child { font-size: 13px; }
+      .workspace { padding-left: 10px; padding-right: 10px; }
+      .problem-list-heading,
+      .problem-row {
+        grid-template-columns: 46px minmax(0, 1fr) 52px 74px;
+        gap: 7px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .problem-title { font-size: 13px; }
+      .status-chip { padding-left: 6px; padding-right: 6px; font-size: 10px; }
+      .work-header h2 { font-size: 20px; }
+      .grading-result { grid-template-columns: 1fr; }
+      .grading-copy { align-items: flex-start; flex-direction: column; }
+      .button { width: 100%; }
+      .command-row { align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/">Woowa Practice <small>코드 연습</small></a>
+      <nav class="site-nav" aria-label="주요 메뉴">
+        <a class="nav-link" href="/">홈</a>
+        <a class="nav-link" href="/problems.html" aria-current="page">문제</a>
+      </nav>
+      <a class="login-link" href="/oauth2/authorization/github">GitHub 로그인</a>
+    </div>
+  </header>
+
+  <section class="problem-banner" aria-labelledby="problem-banner-title">
+    <p class="banner-eyebrow">PRECOURSE PRACTICE</p>
+    <h1 id="problem-banner-title">문제</h1>
+    <p>GitHub 저장소를 제출해 프리코스 과제를 검증하세요.</p>
+  </section>
+
+  <nav class="stage-bar" aria-label="프리코스 차수">
+    <div id="stage-tabs" class="stage-tabs" role="tablist" aria-label="문제 차수 선택"></div>
+  </nav>
+
+  <main class="workspace">
+    <section class="problem-pane" aria-label="문제 목록">
+      <div class="pane-heading">
+        <h2>문제 목록</h2>
+        <span id="problem-count" class="count">불러오는 중</span>
+      </div>
+      <div class="problem-list-heading" aria-hidden="true">
+        <span>번호</span>
+        <span>문제</span>
+        <span>차수</span>
+        <span>결과</span>
+      </div>
+      <div id="problem-list" class="problem-list" role="tabpanel" aria-live="polite"></div>
+    </section>
+    <aside id="work-panel" class="work-panel" aria-live="polite">
+      <p class="select-state">목록에서 문제를 선택해 상세 내용과 제출 양식을 확인하세요.</p>
+    </aside>
+  </main>
+
+  <div id="page-status" role="status" aria-live="polite"></div>
+
+  <script>
+    const STAGES = ['ROUND_1', 'ROUND_2', 'ROUND_3', 'ROUND_4', 'ROUND_5', 'FINAL'];
+    const SUBMISSION_STATUSES_KEY = 'woowa-practice.submission-statuses';
+    const state = {
+      stage: 'ROUND_1',
+      problems: [],
+      selectedSlug: null,
+      lastSubmissionId: null,
+      submission: null,
+      knownStatuses: {},
+      listRequest: 0,
+      detailRequest: 0
+    };
+
+    const stageTabs = document.querySelector('#stage-tabs');
+    const problemList = document.querySelector('#problem-list');
+    const problemCount = document.querySelector('#problem-count');
+    const workPanel = document.querySelector('#work-panel');
+    const pageStatus = document.querySelector('#page-status');
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, options);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(body.message || '요청을 처리하지 못했습니다.');
+        error.status = response.status;
+        throw error;
+      }
+      return body;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function safeWebUrl(value) {
+      try {
+        const url = new URL(value);
+        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+      } catch (error) {
+        return '';
+      }
+    }
+
+    function stageLabel(stage) {
+      return stage === 'FINAL' ? '파이널' : `${stage.replace('ROUND_', '')}차`;
+    }
+
+    function statusMeta(status) {
+      return ({
+        QUEUED: { label: '대기 중', tone: 'warning' },
+        RUNNING: { label: '채점 중', tone: 'warning' },
+        PASSED: { label: '통과', tone: 'success' },
+        FAILED: { label: '실패', tone: 'danger' },
+        ERROR: { label: '처리 오류', tone: 'danger' }
+      })[status] || { label: '처리 오류', tone: 'danger' };
+    }
+
+    function statusChip(status) {
+      const meta = statusMeta(status);
+      return `<span class="status-chip ${meta.tone}">${meta.label}</span>`;
+    }
+
+    function statusMessage(status, errorMessage) {
+      return ({
+        QUEUED: '제출이 접수되어 채점을 기다리고 있습니다.',
+        RUNNING: '제출한 코드를 채점하고 있습니다.',
+        PASSED: '모든 채점 조건을 통과했습니다.',
+        FAILED: '채점 조건을 통과하지 못했습니다.',
+        ERROR: errorMessage || '채점 처리 중 오류가 발생했습니다.'
+      })[status] || '채점 상태를 확인하지 못했습니다.';
+    }
+
+    function saveSubmissionStatus(slug, submission) {
+      const statuses = JSON.parse(localStorage.getItem(SUBMISSION_STATUSES_KEY) || '{}');
+      statuses[slug] = {
+        id: submission.id,
+        status: submission.status,
+        submittedAt: submission.submittedAt
+      };
+      localStorage.setItem(SUBMISSION_STATUSES_KEY, JSON.stringify(statuses));
+    }
+
+    function announce(message) {
+      pageStatus.textContent = '';
+      requestAnimationFrame(() => { pageStatus.textContent = message; });
+    }
+
+    function renderStageTabs() {
+      stageTabs.innerHTML = STAGES.map(stage => `
+        <button
+          id="tab-${stage.toLowerCase().replace('_', '-')}"
+          class="stage-tab"
+          type="button"
+          role="tab"
+          aria-controls="problem-list"
+          aria-selected="${stage === state.stage}"
+          tabindex="${stage === state.stage ? '0' : '-1'}"
+          data-stage="${stage}"
+        >${stageLabel(stage)}</button>
+      `).join('');
+      problemList.setAttribute('aria-labelledby', `tab-${state.stage.toLowerCase().replace('_', '-')}`);
+    }
+
+    function renderProblemList(message = '') {
+      problemCount.textContent = message ? '확인 필요' : `${state.problems.length}개`;
+      if (message) {
+        problemList.innerHTML = `<p class="empty-state">${escapeHtml(message)}</p>`;
+        return;
+      }
+      if (state.problems.length === 0) {
+        problemList.innerHTML = '<p class="empty-state">이 차수에 공개된 문제가 없습니다.</p>';
+        return;
+      }
+      problemList.innerHTML = state.problems.map(problem => {
+        const knownStatus = state.knownStatuses[problem.slug];
+        return `
+          <button
+            class="problem-row"
+            type="button"
+            data-slug="${escapeHtml(problem.slug)}"
+            aria-current="${problem.slug === state.selectedSlug}"
+          >
+            <span class="problem-order">#${escapeHtml(problem.displayOrder)}</span>
+            <span class="problem-title">${escapeHtml(problem.title)}</span>
+            <span class="problem-stage">${escapeHtml(stageLabel(problem.stage))}</span>
+            ${knownStatus ? statusChip(knownStatus) : '<span class="status-chip">미제출</span>'}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderPanelMessage(message, kind = 'select-state') {
+      workPanel.innerHTML = `<p class="${kind}">${escapeHtml(message)}</p>`;
+    }
+
+    function renderProblemDetail(problem) {
+      const starterUrl = safeWebUrl(problem.starterRepositoryUrl);
+      workPanel.innerHTML = `
+        <div class="work-header">
+          <p class="eyebrow">${escapeHtml(stageLabel(problem.stage))} · #${escapeHtml(problem.displayOrder)}</p>
+          <h2>${escapeHtml(problem.title)}</h2>
+          <p class="meta">Java ${escapeHtml(problem.javaVersion)} · 문제 버전 ${escapeHtml(problem.version)}</p>
+        </div>
+        <div class="problem-description">${escapeHtml(problem.descriptionMarkdown || '상세 설명이 없습니다.')}</div>
+        ${starterUrl
+          ? `<a class="starter-link" href="${escapeHtml(starterUrl)}" target="_blank" rel="noopener noreferrer">스타터 저장소 열기</a>`
+          : '<p class="meta">스타터 저장소가 등록되지 않았습니다.</p>'}
+        <section class="submission-section" aria-labelledby="submission-heading">
+          <h3 id="submission-heading" class="section-heading">GitHub 제출</h3>
+          <form id="submission-form" class="submission-form" data-slug="${escapeHtml(problem.slug)}">
+            <div class="form-field">
+              <label for="repository-url">GitHub 저장소 URL</label>
+              <input id="repository-url" name="repositoryUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://github.com/username/repository" required>
+            </div>
+            <div class="form-field">
+              <label for="commit-sha">커밋 SHA <span class="meta">(선택)</span></label>
+              <input id="commit-sha" name="commitSha" type="text" minlength="40" maxlength="40" pattern="[0-9a-fA-F]{40}" autocomplete="off" placeholder="40자 커밋 SHA">
+              <p class="field-help">비워 두면 저장소의 기본 브랜치를 채점합니다.</p>
+            </div>
+            <div class="command-row">
+              <button class="button button-primary" type="submit">채점 제출</button>
+            </div>
+          </form>
+          <div id="submission-message" aria-live="polite"></div>
+        </section>
+        <div id="submission-result"></div>
+      `;
+    }
+
+    function renderSubmissionMessage(message, tone = '') {
+      const container = document.querySelector('#submission-message');
+      if (!container) return;
+      const loginHelp = tone === 'auth'
+        ? ' <a href="/oauth2/authorization/github">GitHub 로그인</a> 후 다시 제출해 주세요.'
+        : '';
+      const className = tone === 'auth' ? 'error' : tone;
+      container.innerHTML = `<p class="inline-message ${className}">${escapeHtml(message)}${loginHelp}</p>`;
+    }
+
+    function renderSubmissionResult() {
+      const container = document.querySelector('#submission-result');
+      const submission = state.submission;
+      if (!container || !submission) return;
+      container.innerHTML = `
+        <section class="result-section" aria-labelledby="result-heading">
+          <h3 id="result-heading" class="section-heading">채점 결과</h3>
+          <div class="grading-result">
+            <div class="grading-copy">
+              ${statusChip(submission.status)}
+              <p>${escapeHtml(statusMessage(submission.status, submission.errorMessage))}</p>
+            </div>
+            <button id="refresh-result" class="button button-secondary" type="button">결과 새로고침</button>
+            <div id="result-message" class="result-error" aria-live="polite"></div>
+          </div>
+        </section>
+      `;
+    }
+
+    function setControlBusy(control, busy, busyLabel) {
+      if (!control) return;
+      if (busy) {
+        control.dataset.label = control.textContent;
+        control.textContent = busyLabel;
+        control.disabled = true;
+      } else {
+        control.textContent = control.dataset.label || control.textContent;
+        control.disabled = false;
+      }
+    }
+
+    async function loadProblems(stage) {
+      const requestId = ++state.listRequest;
+      state.stage = stage;
+      state.problems = [];
+      state.selectedSlug = null;
+      state.lastSubmissionId = null;
+      state.submission = null;
+      renderStageTabs();
+      problemCount.textContent = '불러오는 중';
+      problemList.innerHTML = '<p class="loading-state">문제를 불러오는 중입니다.</p>';
+      renderPanelMessage('목록에서 문제를 선택해 상세 내용과 제출 양식을 확인하세요.');
+      try {
+        const body = await request(`/api/problems?stage=${encodeURIComponent(stage)}`);
+        if (requestId !== state.listRequest) return;
+        if (!Array.isArray(body.problems)) throw new Error('문제 목록 응답 형식이 올바르지 않습니다.');
+        state.problems = body.problems;
+        renderProblemList();
+        announce(`${stageLabel(stage)} 문제 ${state.problems.length}개를 불러왔습니다.`);
+      } catch (error) {
+        if (requestId !== state.listRequest) return;
+        renderProblemList(error.message);
+        announce(error.message);
+      }
+    }
+
+    async function selectProblem(slug) {
+      const requestId = ++state.detailRequest;
+      state.selectedSlug = slug;
+      state.lastSubmissionId = null;
+      state.submission = null;
+      renderProblemList();
+      renderPanelMessage('문제 상세를 불러오는 중입니다.', 'loading-state');
+      try {
+        const problem = await request(`/api/problems/${encodeURIComponent(slug)}`);
+        if (requestId !== state.detailRequest || slug !== state.selectedSlug) return;
+        if (!problem || problem.slug !== slug) throw new Error('문제 상세 응답 형식이 올바르지 않습니다.');
+        renderProblemDetail(problem);
+        announce(`${problem.title} 문제를 선택했습니다.`);
+      } catch (error) {
+        if (requestId !== state.detailRequest) return;
+        renderPanelMessage(error.message, 'empty-state');
+        announce(error.message);
+      }
+    }
+
+    async function submitSolution(form) {
+      const button = form.querySelector('button[type="submit"]');
+      const data = new FormData(form);
+      const repositoryUrl = String(data.get('repositoryUrl') || '').trim();
+      const commitSha = String(data.get('commitSha') || '').trim();
+      const slug = form.dataset.slug;
+      setControlBusy(button, true, '제출 중');
+      renderSubmissionMessage('제출을 접수하는 중입니다.');
+      try {
+        const submission = await request(`/api/problems/${encodeURIComponent(slug)}/submissions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repositoryUrl, ...(commitSha ? { commitSha } : {}) })
+        });
+        if (submission.id == null || !submission.status) throw new Error('제출 응답 형식이 올바르지 않습니다.');
+        if (state.selectedSlug !== slug || !form.isConnected) return;
+        state.lastSubmissionId = submission.id;
+        state.submission = submission;
+        state.knownStatuses[slug] = submission.status;
+        saveSubmissionStatus(slug, submission);
+        renderProblemList();
+        renderSubmissionMessage(`제출 #${submission.id}이(가) 대기열에 등록되었습니다.`, 'success');
+        renderSubmissionResult();
+        announce(`제출 #${submission.id}이(가) 등록되었습니다.`);
+      } catch (error) {
+        if (state.selectedSlug !== slug || !form.isConnected) return;
+        renderSubmissionMessage(error.message, [401, 403].includes(error.status) ? 'auth' : 'error');
+        announce(error.message);
+      } finally {
+        setControlBusy(button, false);
+      }
+    }
+
+    async function refreshSubmission(button) {
+      if (state.lastSubmissionId == null) return;
+      const submissionId = state.lastSubmissionId;
+      const selectedSlug = state.selectedSlug;
+      setControlBusy(button, true, '새로고침 중');
+      const message = document.querySelector('#result-message');
+      if (message) message.textContent = '최신 채점 결과를 불러오는 중입니다.';
+      try {
+        const submission = await request(`/api/submissions/${encodeURIComponent(submissionId)}`);
+        if (submission.id == null || !submission.status) throw new Error('채점 결과 응답 형식이 올바르지 않습니다.');
+        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
+        state.submission = submission;
+        state.knownStatuses[selectedSlug] = submission.status;
+        saveSubmissionStatus(selectedSlug, submission);
+        renderProblemList();
+        renderSubmissionResult();
+        announce(`제출 #${submission.id}의 결과를 새로고침했습니다.`);
+      } catch (error) {
+        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
+        const currentMessage = document.querySelector('#result-message');
+        if (currentMessage) currentMessage.textContent = error.message;
+        announce(error.message);
+      } finally {
+        if (button.isConnected) setControlBusy(button, false);
+      }
+    }
+
+    stageTabs.addEventListener('click', event => {
+      const tab = event.target.closest('[data-stage]');
+      if (!tab || tab.dataset.stage === state.stage) return;
+      loadProblems(tab.dataset.stage);
+    });
+
+    stageTabs.addEventListener('keydown', event => {
+      const tab = event.target.closest('[data-stage]');
+      if (!tab) return;
+      const current = STAGES.indexOf(tab.dataset.stage);
+      let next = null;
+      if (event.key === 'ArrowRight') next = (current + 1) % STAGES.length;
+      if (event.key === 'ArrowLeft') next = (current - 1 + STAGES.length) % STAGES.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = STAGES.length - 1;
+      if (next == null) return;
+      event.preventDefault();
+      const nextTab = stageTabs.querySelector(`[data-stage="${STAGES[next]}"]`);
+      nextTab.focus();
+      nextTab.click();
+    });
+
+    problemList.addEventListener('click', event => {
+      const row = event.target.closest('[data-slug]');
+      if (!row || row.dataset.slug === state.selectedSlug) return;
+      selectProblem(row.dataset.slug);
+    });
+
+    workPanel.addEventListener('submit', event => {
+      if (event.target.id !== 'submission-form') return;
+      event.preventDefault();
+      submitSolution(event.target);
+    });
+
+    workPanel.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (button?.id === 'refresh-result') refreshSubmission(button);
+    });
+
+    renderStageTabs();
+    loadProblems(state.stage);
+  </script>
+</body>
+</html>
