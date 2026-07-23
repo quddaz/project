@@ -6,19 +6,19 @@
   <title>Woowa Practice</title>
   <style>
     :root {
-      --ink: #172033;
-      --muted: #667085;
-      --canvas: #f4f6f8;
+      --ink: #202421;
+      --muted: #69716c;
+      --canvas: #f5f7f5;
       --surface: #ffffff;
-      --line: #d7dce3;
-      --primary: #1769e0;
-      --primary-soft: #eaf2ff;
-      --success: #147a42;
-      --success-soft: #e8f6ee;
-      --warning: #9a5b00;
-      --warning-soft: #fff4d6;
-      --danger: #b42318;
-      --danger-soft: #ffebe9;
+      --line: #dfe4e0;
+      --line-strong: #c5cdc7;
+      --accent: #1f8f5f;
+      --accent-dark: #167349;
+      --accent-soft: #edf8f2;
+      --warning: #996515;
+      --warning-soft: #fff8e7;
+      --danger: #b23a34;
+      --danger-soft: #fff1ef;
       font-family: Inter, Pretendard, "Noto Sans KR", Arial, sans-serif;
       color: var(--ink);
       background: var(--canvas);
@@ -29,94 +29,111 @@
     button, input { font: inherit; }
     button, a { -webkit-tap-highlight-color: transparent; }
     button:focus-visible, a:focus-visible, input:focus-visible {
-      outline: 3px solid rgba(23, 105, 224, .28);
+      outline: 3px solid rgba(31, 143, 95, .24);
       outline-offset: 2px;
     }
 
     .site-header {
+      min-height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 64px;
-      padding: 0 28px;
+      gap: 20px;
+      padding: 0 24px;
       border-bottom: 1px solid var(--line);
       background: var(--surface);
     }
-    .brand { margin: 0; font-size: 20px; line-height: 1.3; }
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+    .brand small { color: var(--muted); font-size: 12px; font-weight: 600; }
     .login-link {
-      min-height: 38px;
+      min-height: 34px;
       display: inline-flex;
       align-items: center;
-      padding: 0 14px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
       color: var(--ink);
       background: var(--surface);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       text-decoration: none;
     }
-    .login-link:hover { border-color: #aeb7c4; background: #f8fafc; }
+    .login-link:hover { border-color: var(--accent); color: var(--accent-dark); }
 
     .stage-bar { border-bottom: 1px solid var(--line); background: var(--surface); }
     .stage-tabs {
-      max-width: 1440px;
+      width: 100%;
+      max-width: 1240px;
       display: flex;
-      gap: 4px;
+      gap: 18px;
       margin: 0 auto;
-      padding: 10px 28px 0;
+      padding: 0 24px;
       overflow-x: auto;
+      scrollbar-width: thin;
     }
     .stage-tab {
-      min-width: 82px;
-      min-height: 40px;
-      padding: 0 13px 8px;
+      min-width: 56px;
+      min-height: 45px;
+      padding: 2px 3px 0;
       border: 0;
-      border-bottom: 3px solid transparent;
+      border-bottom: 2px solid transparent;
       border-radius: 0;
       color: var(--muted);
       background: transparent;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       white-space: nowrap;
       cursor: pointer;
     }
-    .stage-tab:hover { color: var(--ink); background: #f8fafc; }
-    .stage-tab[aria-selected="true"] { border-bottom-color: var(--primary); color: var(--primary); }
+    .stage-tab:hover { color: var(--ink); }
+    .stage-tab[aria-selected="true"] {
+      border-bottom-color: var(--accent);
+      color: var(--accent-dark);
+    }
 
-    .dashboard {
+    .workspace {
       width: 100%;
-      max-width: 1440px;
+      max-width: 1240px;
       display: grid;
-      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
-      gap: 20px;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 16px;
       margin: 0 auto;
-      padding: 24px 28px 48px;
+      padding: 20px 24px 48px;
     }
     .problem-pane, .work-panel {
       min-width: 0;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 6px;
       background: var(--surface);
     }
     .problem-pane { align-self: start; overflow: hidden; }
     .pane-heading {
+      min-height: 50px;
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 16px 18px;
+      padding: 0 16px;
       border-bottom: 1px solid var(--line);
     }
-    .pane-heading h2 { margin: 0; font-size: 16px; }
-    .count { color: var(--muted); font-size: 13px; }
+    .pane-heading h2 { margin: 0; font-size: 15px; }
+    .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
     .problem-list { display: grid; }
     .problem-row {
       width: 100%;
+      min-height: 64px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px 12px;
-      padding: 15px 18px;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 5px 9px;
+      padding: 11px 14px;
       border: 0;
       border-bottom: 1px solid var(--line);
       border-radius: 0;
@@ -126,137 +143,191 @@
       cursor: pointer;
     }
     .problem-row:last-child { border-bottom: 0; }
-    .problem-row:hover { background: #f8fafc; }
+    .problem-row:hover { background: #f8faf8; }
     .problem-row[aria-current="true"] {
-      box-shadow: inset 4px 0 0 var(--primary);
-      background: var(--primary-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+      background: var(--accent-soft);
     }
-    .problem-title { min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: 700; }
-    .problem-order { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
-    .problem-stage { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
+    .problem-order {
+      grid-row: 1 / 3;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .problem-title {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .problem-stage { color: var(--muted); font-size: 11px; }
+    .problem-row .status-chip { grid-row: 1 / 3; grid-column: 3; }
 
     .empty-state, .loading-state, .select-state {
       margin: 0;
-      padding: 32px 20px;
+      padding: 36px 20px;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.6;
       text-align: center;
     }
-    .work-panel { min-height: 460px; padding: 26px; }
+    .work-panel { min-height: 470px; padding: 24px 26px 30px; }
     .work-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
       padding-bottom: 18px;
       border-bottom: 1px solid var(--line);
     }
-    .work-header h2 { margin: 3px 0 5px; font-size: 24px; line-height: 1.35; overflow-wrap: anywhere; }
-    .eyebrow { margin: 0; color: var(--primary); font-size: 12px; font-weight: 800; }
-    .meta { margin: 0; color: var(--muted); font-size: 13px; }
+    .work-header h2 {
+      margin: 5px 0 6px;
+      font-size: 22px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .eyebrow { margin: 0; color: var(--accent-dark); font-size: 12px; font-weight: 800; }
+    .meta { margin: 0; color: var(--muted); font-size: 12px; }
     .problem-description {
-      margin: 22px 0;
-      color: #344054;
-      font-size: 15px;
+      margin: 20px 0;
+      color: #39413c;
+      font-size: 14px;
       line-height: 1.75;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
     }
-    .starter-link { color: var(--primary); font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+    .starter-link {
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
     .starter-link:hover { text-decoration-thickness: 2px; }
 
-    .submission-section, .result-section, .feedback-section {
-      margin-top: 26px;
-      padding-top: 22px;
+    .submission-section, .result-section {
+      margin-top: 24px;
+      padding-top: 20px;
       border-top: 1px solid var(--line);
     }
-    .section-heading { margin: 0 0 14px; font-size: 16px; }
-    .submission-form { display: grid; gap: 14px; }
-    .form-field { display: grid; gap: 7px; }
-    .form-field label { font-size: 13px; font-weight: 700; }
+    .section-heading { margin: 0 0 13px; font-size: 15px; }
+    .submission-form { display: grid; gap: 13px; }
+    .form-field { display: grid; gap: 6px; }
+    .form-field label { font-size: 12px; font-weight: 700; }
     .form-field input {
       width: 100%;
-      min-height: 42px;
-      padding: 9px 11px;
-      border: 1px solid #b8c0cc;
-      border-radius: 6px;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
       color: var(--ink);
       background: var(--surface);
     }
-    .form-field input::placeholder { color: #8a94a5; }
-    .field-help { margin: 0; color: var(--muted); font-size: 12px; }
-    .command-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+    .form-field input:hover { border-color: #9fa9a2; }
+    .form-field input:focus { border-color: var(--accent); }
+    .form-field input::placeholder { color: #929a95; }
+    .field-help { margin: 0; color: var(--muted); font-size: 11px; }
+    .command-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .button {
-      min-height: 40px;
+      min-height: 38px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0 15px;
+      padding: 0 14px;
       border: 1px solid transparent;
-      border-radius: 6px;
+      border-radius: 5px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
-    .button-primary { color: #fff; background: var(--primary); }
-    .button-primary:hover { background: #1259bd; }
-    .button-secondary { border-color: #aeb7c4; color: var(--ink); background: var(--surface); }
-    .button-secondary:hover { background: #f2f4f7; }
+    .button-primary { color: #fff; background: var(--accent); }
+    .button-primary:hover { background: var(--accent-dark); }
+    .button-secondary {
+      border-color: var(--line-strong);
+      color: var(--ink);
+      background: var(--surface);
+    }
+    .button-secondary:hover { border-color: var(--accent); color: var(--accent-dark); }
     .button:disabled { opacity: .58; cursor: not-allowed; }
 
     .inline-message {
-      margin: 12px 0 0;
-      padding: 10px 12px;
-      border-left: 3px solid #8a94a5;
-      color: #475467;
-      background: #f2f4f7;
+      margin: 11px 0 0;
+      padding: 9px 11px;
+      border-left: 3px solid #8e9891;
+      color: #515b54;
+      background: #f3f5f3;
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    .inline-message.success {
+      border-left-color: var(--accent);
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+    }
+    .inline-message.error {
+      border-left-color: var(--danger);
+      color: #8f2c27;
+      background: var(--danger-soft);
+    }
+    .inline-message a { color: inherit; font-weight: 700; }
+
+    .status-chip {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      color: #59635c;
+      background: #f3f5f3;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .status-chip.success {
+      border-color: #acd8c0;
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+    }
+    .status-chip.warning {
+      border-color: #ead397;
+      color: var(--warning);
+      background: var(--warning-soft);
+    }
+    .status-chip.danger {
+      border-color: #e8b8b4;
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .grading-result {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: 5px;
+      background: #fbfcfb;
+    }
+    .grading-copy {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .grading-copy p {
+      margin: 0;
+      color: #465049;
       font-size: 13px;
       line-height: 1.55;
       overflow-wrap: anywhere;
     }
-    .inline-message.success { border-left-color: var(--success); color: #0d6335; background: var(--success-soft); }
-    .inline-message.error { border-left-color: var(--danger); color: #8f1d14; background: var(--danger-soft); }
-    .inline-message.warning { border-left-color: var(--warning); color: #754400; background: var(--warning-soft); }
-    .inline-message a { color: inherit; font-weight: 700; }
-
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 27px;
-      padding: 3px 9px;
-      border: 1px solid #cbd2dc;
-      border-radius: 999px;
-      color: #475467;
-      background: #f2f4f7;
+    .result-error {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--danger);
       font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
+      line-height: 1.5;
     }
-    .status-chip.success { border-color: #add9bf; color: var(--success); background: var(--success-soft); }
-    .status-chip.warning { border-color: #efd38c; color: var(--warning); background: var(--warning-soft); }
-    .status-chip.danger { border-color: #efb5af; color: var(--danger); background: var(--danger-soft); }
-
-    .result-summary {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .result-summary p { margin: 0; color: var(--muted); font-size: 13px; }
-    .table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
-    .result-table { width: 100%; min-width: 590px; border-collapse: collapse; font-size: 13px; }
-    .result-table th, .result-table td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-    .result-table th { color: #475467; background: #f8fafc; font-size: 12px; }
-    .result-table tr:last-child td { border-bottom: 0; }
-    .result-table td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .failure-detail { max-width: 440px; color: var(--danger); line-height: 1.5; overflow-wrap: anywhere; white-space: pre-wrap; }
-    .feedback-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .feedback-block { min-width: 0; }
-    .feedback-block:first-child { grid-column: 1 / -1; }
-    .feedback-block h4 { margin: 0 0 6px; font-size: 13px; }
-    .feedback-block p { margin: 0; color: #475467; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap; }
 
     #page-status {
       position: fixed;
@@ -273,18 +344,18 @@
     @media (max-width: 860px) {
       .site-header { padding: 0 18px; }
       .stage-tabs { padding-left: 18px; padding-right: 18px; }
-      .dashboard { grid-template-columns: 1fr; padding: 18px 18px 36px; }
-      .work-panel { min-height: 360px; padding: 22px 18px; }
+      .workspace { grid-template-columns: 1fr; padding: 16px 18px 36px; }
+      .work-panel { min-height: 360px; padding: 22px 18px 26px; }
     }
 
     @media (max-width: 540px) {
-      .brand { font-size: 18px; }
-      .login-link { padding: 0 10px; font-size: 13px; }
-      .dashboard { padding-left: 12px; padding-right: 12px; }
-      .work-header { display: grid; }
-      .work-header h2 { font-size: 21px; }
-      .feedback-grid { grid-template-columns: 1fr; }
-      .feedback-block:first-child { grid-column: auto; }
+      .brand { font-size: 16px; }
+      .brand small { display: none; }
+      .login-link { padding: 0 9px; font-size: 12px; }
+      .workspace { padding-left: 10px; padding-right: 10px; }
+      .work-header h2 { font-size: 20px; }
+      .grading-result { grid-template-columns: 1fr; }
+      .grading-copy { align-items: flex-start; flex-direction: column; }
       .button { width: 100%; }
       .command-row { align-items: stretch; }
     }
@@ -292,7 +363,7 @@
 </head>
 <body>
   <header class="site-header">
-    <h1 class="brand">Woowa Practice</h1>
+    <h1 class="brand">Woowa Practice <small>코드 연습</small></h1>
     <a class="login-link" href="/oauth2/authorization/github">GitHub 로그인</a>
   </header>
 
@@ -300,7 +371,7 @@
     <div id="stage-tabs" class="stage-tabs" role="tablist" aria-label="문제 차수 선택"></div>
   </nav>
 
-  <main class="dashboard">
+  <main class="workspace">
     <section class="problem-pane" aria-label="문제 목록">
       <div class="pane-heading">
         <h2>문제 목록</h2>
@@ -317,14 +388,13 @@
 
   <script>
     const STAGES = ['ROUND_1', 'ROUND_2', 'ROUND_3', 'ROUND_4', 'ROUND_5', 'FINAL'];
-    const TERMINAL_STATUSES = new Set(['PASSED', 'FAILED', 'ERROR']);
     const state = {
       stage: 'ROUND_1',
       problems: [],
       selectedSlug: null,
       lastSubmissionId: null,
       submission: null,
-      feedback: null,
+      knownStatuses: {},
       listRequest: 0,
       detailRequest: 0
     };
@@ -371,15 +441,23 @@
         RUNNING: { label: '채점 중', tone: 'warning' },
         PASSED: { label: '통과', tone: 'success' },
         FAILED: { label: '실패', tone: 'danger' },
-        ERROR: { label: '처리 오류', tone: 'danger' },
-        SKIPPED: { label: '건너뜀', tone: '' },
-        GENERATED: { label: '생성 완료', tone: 'success' }
-      })[status] || { label: status || '확인 필요', tone: '' };
+        ERROR: { label: '처리 오류', tone: 'danger' }
+      })[status] || { label: '처리 오류', tone: 'danger' };
     }
 
     function statusChip(status) {
       const meta = statusMeta(status);
-      return `<span class="status-chip ${meta.tone}">${escapeHtml(meta.label)}</span>`;
+      return `<span class="status-chip ${meta.tone}">${meta.label}</span>`;
+    }
+
+    function statusMessage(status, errorMessage) {
+      return ({
+        QUEUED: '제출이 접수되어 채점을 기다리고 있습니다.',
+        RUNNING: '제출한 코드를 채점하고 있습니다.',
+        PASSED: '모든 채점 조건을 통과했습니다.',
+        FAILED: '채점 조건을 통과하지 못했습니다.',
+        ERROR: errorMessage || '채점 처리 중 오류가 발생했습니다.'
+      })[status] || '채점 상태를 확인하지 못했습니다.';
     }
 
     function announce(message) {
@@ -413,18 +491,22 @@
         problemList.innerHTML = '<p class="empty-state">이 차수에 공개된 문제가 없습니다.</p>';
         return;
       }
-      problemList.innerHTML = state.problems.map(problem => `
-        <button
-          class="problem-row"
-          type="button"
-          data-slug="${escapeHtml(problem.slug)}"
-          aria-current="${problem.slug === state.selectedSlug}"
-        >
-          <span class="problem-title">${escapeHtml(problem.title)}</span>
-          <span class="problem-order">#${escapeHtml(problem.displayOrder)}</span>
-          <span class="problem-stage">${escapeHtml(stageLabel(problem.stage))}</span>
-        </button>
-      `).join('');
+      problemList.innerHTML = state.problems.map(problem => {
+        const knownStatus = state.knownStatuses[problem.slug];
+        return `
+          <button
+            class="problem-row"
+            type="button"
+            data-slug="${escapeHtml(problem.slug)}"
+            aria-current="${problem.slug === state.selectedSlug}"
+          >
+            <span class="problem-order">#${escapeHtml(problem.displayOrder)}</span>
+            <span class="problem-title">${escapeHtml(problem.title)}</span>
+            <span class="problem-stage">${escapeHtml(stageLabel(problem.stage))}</span>
+            ${knownStatus ? statusChip(knownStatus) : ''}
+          </button>
+        `;
+      }).join('');
     }
 
     function renderPanelMessage(message, kind = 'select-state') {
@@ -435,18 +517,16 @@
       const starterUrl = safeWebUrl(problem.starterRepositoryUrl);
       workPanel.innerHTML = `
         <div class="work-header">
-          <div>
-            <p class="eyebrow">${escapeHtml(stageLabel(problem.stage))} · #${escapeHtml(problem.displayOrder)}</p>
-            <h2>${escapeHtml(problem.title)}</h2>
-            <p class="meta">Java ${escapeHtml(problem.javaVersion)} · 문제 버전 ${escapeHtml(problem.version)}</p>
-          </div>
+          <p class="eyebrow">${escapeHtml(stageLabel(problem.stage))} · #${escapeHtml(problem.displayOrder)}</p>
+          <h2>${escapeHtml(problem.title)}</h2>
+          <p class="meta">Java ${escapeHtml(problem.javaVersion)} · 문제 버전 ${escapeHtml(problem.version)}</p>
         </div>
         <div class="problem-description">${escapeHtml(problem.descriptionMarkdown || '상세 설명이 없습니다.')}</div>
         ${starterUrl
           ? `<a class="starter-link" href="${escapeHtml(starterUrl)}" target="_blank" rel="noopener noreferrer">스타터 저장소 열기</a>`
           : '<p class="meta">스타터 저장소가 등록되지 않았습니다.</p>'}
         <section class="submission-section" aria-labelledby="submission-heading">
-          <h3 id="submission-heading" class="section-heading">채점 제출</h3>
+          <h3 id="submission-heading" class="section-heading">GitHub 제출</h3>
           <form id="submission-form" class="submission-form" data-slug="${escapeHtml(problem.slug)}">
             <div class="form-field">
               <label for="repository-url">GitHub 저장소 URL</label>
@@ -464,7 +544,6 @@
           <div id="submission-message" aria-live="polite"></div>
         </section>
         <div id="submission-result"></div>
-        <div id="feedback-result"></div>
       `;
     }
 
@@ -480,76 +559,18 @@
 
     function renderSubmissionResult() {
       const container = document.querySelector('#submission-result');
-      if (!container || !state.submission) return;
       const submission = state.submission;
-      const tests = Array.isArray(submission.tests)
-        ? submission.tests
-        : (Array.isArray(submission.testResults) ? submission.testResults : []);
-      const terminal = TERMINAL_STATUSES.has(submission.status);
-      const completed = submission.completedAt
-        ? new Date(submission.completedAt).toLocaleString('ko-KR')
-        : '아직 완료되지 않음';
-
+      if (!container || !submission) return;
       container.innerHTML = `
         <section class="result-section" aria-labelledby="result-heading">
-          <div class="result-summary">
-            <div>
-              <h3 id="result-heading" class="section-heading">채점 결과</h3>
-              <p>제출 #${escapeHtml(submission.id)} · ${escapeHtml(completed)}</p>
+          <h3 id="result-heading" class="section-heading">채점 결과</h3>
+          <div class="grading-result">
+            <div class="grading-copy">
+              ${statusChip(submission.status)}
+              <p>${escapeHtml(statusMessage(submission.status, submission.errorMessage))}</p>
             </div>
-            ${statusChip(submission.status)}
-          </div>
-          <div class="command-row">
             <button id="refresh-result" class="button button-secondary" type="button">결과 새로고침</button>
-            ${terminal ? '<button id="generate-feedback" class="button button-secondary" type="button">피드백 생성</button><button id="load-feedback" class="button button-secondary" type="button">저장된 피드백 조회</button>' : ''}
-          </div>
-          <div id="result-message" aria-live="polite">
-            ${submission.errorMessage ? `<p class="inline-message error">${escapeHtml(submission.errorMessage)}</p>` : ''}
-            ${!terminal ? '<p class="inline-message warning">상태는 자동으로 변경되지 않습니다. 확인할 때 결과 새로고침을 눌러 주세요.</p>' : ''}
-          </div>
-          ${renderTests(tests, terminal)}
-        </section>
-      `;
-    }
-
-    function renderTests(tests, terminal) {
-      if (tests.length === 0) {
-        return terminal
-          ? '<p class="inline-message">표시할 테스트 결과가 없습니다.</p>'
-          : '';
-      }
-      return `
-        <div class="table-wrap">
-          <table class="result-table">
-            <thead><tr><th scope="col">테스트</th><th scope="col">결과</th><th scope="col">소요 시간</th><th scope="col">세부 내용</th></tr></thead>
-            <tbody>
-              ${tests.map(test => `
-                <tr>
-                  <td>${escapeHtml(test.displayName || test.testIdentifier)}</td>
-                  <td>${statusChip(test.status)}</td>
-                  <td>${test.durationMillis == null ? '-' : `${escapeHtml(test.durationMillis)} ms`}</td>
-                  <td class="failure-detail">${escapeHtml(test.failureMessage || '-')}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderFeedback(feedback) {
-      const container = document.querySelector('#feedback-result');
-      if (!container) return;
-      container.innerHTML = `
-        <section class="feedback-section" aria-labelledby="feedback-heading">
-          <div class="result-summary">
-            <h3 id="feedback-heading" class="section-heading">피드백</h3>
-            ${statusChip(feedback.status)}
-          </div>
-          <div class="feedback-grid">
-            <div class="feedback-block"><h4>요약</h4><p>${escapeHtml(feedback.summary || '요약이 아직 없습니다.')}</p></div>
-            <div class="feedback-block"><h4>잘한 점</h4><p>${escapeHtml(feedback.strengths || '-')}</p></div>
-            <div class="feedback-block"><h4>개선할 점</h4><p>${escapeHtml(feedback.improvements || '-')}</p></div>
+            <div id="result-message" class="result-error" aria-live="polite"></div>
           </div>
         </section>
       `;
@@ -574,7 +595,6 @@
       state.selectedSlug = null;
       state.lastSubmissionId = null;
       state.submission = null;
-      state.feedback = null;
       renderStageTabs();
       problemCount.textContent = '불러오는 중';
       problemList.innerHTML = '<p class="loading-state">문제를 불러오는 중입니다.</p>';
@@ -598,7 +618,6 @@
       state.selectedSlug = slug;
       state.lastSubmissionId = null;
       state.submission = null;
-      state.feedback = null;
       renderProblemList();
       renderPanelMessage('문제 상세를 불러오는 중입니다.', 'loading-state');
       try {
@@ -632,9 +651,8 @@
         if (state.selectedSlug !== slug || !form.isConnected) return;
         state.lastSubmissionId = submission.id;
         state.submission = submission;
-        state.feedback = null;
-        const feedbackContainer = document.querySelector('#feedback-result');
-        if (feedbackContainer) feedbackContainer.innerHTML = '';
+        state.knownStatuses[slug] = submission.status;
+        renderProblemList();
         renderSubmissionMessage(`제출 #${submission.id}이(가) 대기열에 등록되었습니다.`, 'success');
         renderSubmissionResult();
         announce(`제출 #${submission.id}이(가) 등록되었습니다.`);
@@ -653,43 +671,23 @@
       const selectedSlug = state.selectedSlug;
       setControlBusy(button, true, '새로고침 중');
       const message = document.querySelector('#result-message');
-      if (message) message.innerHTML = '<p class="inline-message">최신 채점 결과를 불러오는 중입니다.</p>';
+      if (message) message.textContent = '최신 채점 결과를 불러오는 중입니다.';
       try {
         const submission = await request(`/api/submissions/${encodeURIComponent(submissionId)}`);
         if (submission.id == null || !submission.status) throw new Error('채점 결과 응답 형식이 올바르지 않습니다.');
         if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
         state.submission = submission;
+        state.knownStatuses[selectedSlug] = submission.status;
+        renderProblemList();
         renderSubmissionResult();
         announce(`제출 #${submission.id}의 결과를 새로고침했습니다.`);
       } catch (error) {
         if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
         const currentMessage = document.querySelector('#result-message');
-        if (currentMessage) currentMessage.innerHTML = `<p class="inline-message error">${escapeHtml(error.message)}</p>`;
+        if (currentMessage) currentMessage.textContent = error.message;
         announce(error.message);
       } finally {
         if (button.isConnected) setControlBusy(button, false);
-      }
-    }
-
-    async function handleFeedback(button, method) {
-      if (state.lastSubmissionId == null || !TERMINAL_STATUSES.has(state.submission?.status)) return;
-      const submissionId = state.lastSubmissionId;
-      const selectedSlug = state.selectedSlug;
-      setControlBusy(button, true, method === 'POST' ? '생성 중' : '조회 중');
-      try {
-        const feedback = await request(`/api/submissions/${encodeURIComponent(submissionId)}/feedback`, { method });
-        if (!feedback || !feedback.status) throw new Error('피드백 응답 형식이 올바르지 않습니다.');
-        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
-        state.feedback = feedback;
-        renderFeedback(feedback);
-        announce(method === 'POST' ? '피드백을 생성했습니다.' : '저장된 피드백을 불러왔습니다.');
-      } catch (error) {
-        if (state.selectedSlug !== selectedSlug || state.lastSubmissionId !== submissionId) return;
-        const container = document.querySelector('#feedback-result');
-        if (container) container.innerHTML = `<p class="inline-message error">${escapeHtml(error.message)}</p>`;
-        announce(error.message);
-      } finally {
-        setControlBusy(button, false);
       }
     }
 
@@ -729,10 +727,7 @@
 
     workPanel.addEventListener('click', event => {
       const button = event.target.closest('button');
-      if (!button) return;
-      if (button.id === 'refresh-result') refreshSubmission(button);
-      if (button.id === 'generate-feedback') handleFeedback(button, 'POST');
-      if (button.id === 'load-feedback') handleFeedback(button, 'GET');
+      if (button?.id === 'refresh-result') refreshSubmission(button);
     });
 
     renderStageTabs();
