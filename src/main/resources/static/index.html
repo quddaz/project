@@ -32,15 +32,16 @@
     main { padding-bottom: 56px; }
     .intro-hero { position: relative; isolation: isolate; max-width: 1192px; min-height: 520px; display: flex; flex-direction: column; justify-content: center; margin: 28px auto 0; padding: 72px 40px; overflow: hidden; border: 1px solid #18213a; border-radius: 8px; background: #030014 url('/images/woowa-practice-logo-hero.png') center bottom / cover no-repeat; }
     .intro-hero::before { position: absolute; z-index: 0; inset: 0; content: ''; background: linear-gradient(90deg, rgba(3, 0, 20, .84), rgba(3, 0, 20, .3)); }
-    .intro-hero > :not(.hero-stars):not(.hero-energy):not(.hero-marquee) { position: relative; z-index: 2; }
-    .hero-stars, .hero-energy { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
+    #hero-particles { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .intro-hero > :not(.hero-stars):not(.hero-energy):not(.hero-marquee):not(#hero-particles) { position: relative; z-index: 3; }
+    .hero-stars, .hero-energy { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
     .hero-stars { opacity: .65; background-image: radial-gradient(circle at 10% 28%, #fff 0 1px, transparent 1.5px), radial-gradient(circle at 73% 17%, #88aaff 0 1px, transparent 1.5px), radial-gradient(circle at 83% 48%, #fff 0 1px, transparent 1.5px); background-size: 180px 180px, 240px 240px, 300px 300px; }
     .hero-energy { opacity: .26; background: linear-gradient(165deg, transparent 48%, rgba(136, 170, 255, .65) 49%, transparent 50%), linear-gradient(172deg, transparent 61%, rgba(136, 170, 255, .45) 62%, transparent 63%); background-size: 100% 100%, 100% 100%; }
     .eyebrow { margin: 0 0 14px; color: #ccff00; font-size: 11px; font-weight: 800; }
     .intro-hero h1 { margin: 0; color: #fff; font-size: 42px; line-height: 1.2; }
     .intro-hero p:not(.eyebrow) { max-width: 580px; margin: 14px 0 24px; color: rgba(255, 255, 255, .82); font-size: 16px; line-height: 1.7; }
     .hero-meta { margin: 0 0 24px; color: rgba(255, 255, 255, .62); font-family: Consolas, monospace; font-size: 11px; line-height: 1.6; }
-    .hero-marquee { position: absolute; z-index: 1; right: 0; bottom: 14px; left: 0; overflow: hidden; color: transparent; font-family: Impact, Arial Black, sans-serif; font-size: 40px; line-height: 1; white-space: nowrap; -webkit-text-stroke: 1px rgba(255, 255, 255, .22); }
+    .hero-marquee { position: absolute; z-index: 2; right: 0; bottom: 14px; left: 0; overflow: hidden; color: transparent; font-family: Impact, Arial Black, sans-serif; font-size: 40px; line-height: 1; white-space: nowrap; -webkit-text-stroke: 1px rgba(255, 255, 255, .22); }
     .hero-marquee > div { width: max-content; animation: hero-marquee 22s linear infinite; }
     @keyframes hero-marquee { to { transform: translateX(-25%); } }
     .primary-link { width: fit-content; min-height: 42px; display: inline-flex; align-items: center; padding: 0 17px; border: 1px solid var(--accent); border-radius: 5px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; }
@@ -94,6 +95,7 @@
 
   <main>
     <section class="intro-hero" aria-labelledby="intro-title">
+      <canvas id="hero-particles" aria-hidden="true"></canvas>
       <div class="hero-stars" aria-hidden="true"></div>
       <div class="hero-energy" aria-hidden="true"></div>
       <p class="eyebrow">PRECOURSE PRACTICE</p>
@@ -169,6 +171,95 @@
     loadPublicProblemCount().catch(() => {
       document.querySelector('#public-problem-count').textContent = '확인 필요';
     });
+  </script>
+  <script type="module">
+    const hero = document.querySelector('.intro-hero');
+    const canvas = document.querySelector('#hero-particles');
+    const shouldSkipParticles = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      || window.innerWidth <= 540;
+
+    if (canvas) canvas.dataset.particleState = shouldSkipParticles ? 'skipped' : 'loading';
+
+    if (!shouldSkipParticles && hero && canvas) {
+      try {
+        const THREE = await import('/vendor/three.module.js');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
+        const renderer = new THREE.WebGLRenderer({
+          canvas,
+          alpha: true,
+          antialias: false,
+          powerPreference: 'low-power'
+        });
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(1200 * 3);
+        const material = new THREE.PointsMaterial({
+          color: 0x88aaff,
+          size: 0.75,
+          transparent: true,
+          opacity: 0.58,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
+        let pointerX = 0;
+        let pointerY = 0;
+        let frameId = 0;
+
+        for (let index = 0; index < positions.length; index += 3) {
+          positions[index] = (Math.random() - 0.5) * 180;
+          positions[index + 1] = (Math.random() - 0.5) * 95;
+          positions[index + 2] = (Math.random() - 0.5) * 80;
+        }
+
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+        camera.position.z = 90;
+
+        function resize() {
+          const width = hero.clientWidth;
+          const height = hero.clientHeight;
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+          renderer.setSize(width, height, false);
+        }
+
+        function moveParticles(event) {
+          const bounds = hero.getBoundingClientRect();
+          pointerX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 0.06;
+          pointerY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 0.04;
+        }
+
+        function render() {
+          points.rotation.y += (pointerX - points.rotation.y) * 0.02;
+          points.rotation.x += (pointerY - points.rotation.x) * 0.02;
+          renderer.render(scene, camera);
+          frameId = window.requestAnimationFrame(render);
+        }
+
+        function cleanup() {
+          window.cancelAnimationFrame(frameId);
+          hero.removeEventListener('pointermove', moveParticles);
+          window.removeEventListener('resize', resize);
+          window.removeEventListener('pagehide', cleanup);
+          geometry.dispose();
+          material.dispose();
+          renderer.dispose();
+          renderer.forceContextLoss();
+        }
+
+        resize();
+        hero.addEventListener('pointermove', moveParticles);
+        window.addEventListener('resize', resize);
+        window.addEventListener('pagehide', cleanup, { once: true });
+        render();
+        canvas.dataset.particleState = 'running';
+      } catch (error) {
+        canvas.hidden = true;
+        canvas.dataset.particleState = 'fallback';
+      }
+    }
   </script>
 </body>
 </html>

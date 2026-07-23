@@ -6,7 +6,7 @@ Add a lightweight Three.js particle layer to the home hero while retaining the e
 
 ## Scope
 
-- Load the official Three.js ES module from a pinned CDN URL in `index.html`; do not add an npm build pipeline or backend dependency.
+- Serve the official Three.js ES module from a pinned static resource at `/vendor/three.module.js`; do not add an npm build pipeline or backend dependency.
 - Render only inside a transparent canvas positioned within `.intro-hero`, behind the readable content and above the background image.
 - Keep the current CSS star field, energy lines, metadata, and marquee as the no-WebGL visual baseline.
 - Do not change `/problems.html`, any API, grading, feedback, or navigation behavior.
