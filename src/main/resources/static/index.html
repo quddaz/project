@@ -30,10 +30,19 @@
     .login-link:hover { border-color: var(--accent); color: var(--accent-dark); }
 
     main { padding-bottom: 56px; }
-    .intro-hero { max-width: 1192px; min-height: 350px; display: flex; flex-direction: column; justify-content: center; margin: 28px auto 0; padding: 72px 40px; border: 1px solid #cce4d6; border-radius: 8px; background: var(--accent-soft); }
-    .eyebrow { margin: 0 0 14px; color: var(--accent-dark); font-size: 11px; font-weight: 800; }
-    .intro-hero h1 { margin: 0; font-size: 42px; line-height: 1.2; }
-    .intro-hero p:not(.eyebrow) { max-width: 580px; margin: 14px 0 24px; color: #526158; font-size: 16px; line-height: 1.7; }
+    .intro-hero { position: relative; isolation: isolate; max-width: 1192px; min-height: 520px; display: flex; flex-direction: column; justify-content: center; margin: 28px auto 0; padding: 72px 40px; overflow: hidden; border: 1px solid #18213a; border-radius: 8px; background: #030014 url('/images/woowa-practice-logo-hero.png') center bottom / cover no-repeat; }
+    .intro-hero::before { position: absolute; z-index: 0; inset: 0; content: ''; background: linear-gradient(90deg, rgba(3, 0, 20, .84), rgba(3, 0, 20, .3)); }
+    .intro-hero > :not(.hero-stars):not(.hero-energy):not(.hero-marquee) { position: relative; z-index: 2; }
+    .hero-stars, .hero-energy { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
+    .hero-stars { opacity: .65; background-image: radial-gradient(circle at 10% 28%, #fff 0 1px, transparent 1.5px), radial-gradient(circle at 73% 17%, #88aaff 0 1px, transparent 1.5px), radial-gradient(circle at 83% 48%, #fff 0 1px, transparent 1.5px); background-size: 180px 180px, 240px 240px, 300px 300px; }
+    .hero-energy { opacity: .26; background: linear-gradient(165deg, transparent 48%, rgba(136, 170, 255, .65) 49%, transparent 50%), linear-gradient(172deg, transparent 61%, rgba(136, 170, 255, .45) 62%, transparent 63%); background-size: 100% 100%, 100% 100%; }
+    .eyebrow { margin: 0 0 14px; color: #ccff00; font-size: 11px; font-weight: 800; }
+    .intro-hero h1 { margin: 0; color: #fff; font-size: 42px; line-height: 1.2; }
+    .intro-hero p:not(.eyebrow) { max-width: 580px; margin: 14px 0 24px; color: rgba(255, 255, 255, .82); font-size: 16px; line-height: 1.7; }
+    .hero-meta { margin: 0 0 24px; color: rgba(255, 255, 255, .62); font-family: Consolas, monospace; font-size: 11px; line-height: 1.6; }
+    .hero-marquee { position: absolute; z-index: 1; right: 0; bottom: 14px; left: 0; overflow: hidden; color: transparent; font-family: Impact, Arial Black, sans-serif; font-size: 40px; line-height: 1; white-space: nowrap; -webkit-text-stroke: 1px rgba(255, 255, 255, .22); }
+    .hero-marquee > div { width: max-content; animation: hero-marquee 22s linear infinite; }
+    @keyframes hero-marquee { to { transform: translateX(-25%); } }
     .primary-link { width: fit-content; min-height: 42px; display: inline-flex; align-items: center; padding: 0 17px; border: 1px solid var(--accent); border-radius: 5px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; }
     .primary-link:hover { background: var(--accent-dark); }
 
@@ -58,11 +67,16 @@
       .nav-link { min-width: 42px; font-size: 13px; }
       .login-link { padding: 0 9px; font-size: 12px; }
       .intro-hero, .content-section { margin: 0; padding: 32px 20px; border-right: 0; border-left: 0; border-radius: 0; }
-      .intro-hero { min-height: 300px; }
+      .intro-hero { min-height: 480px; background-position: 32% bottom; }
       .intro-hero h1 { font-size: 34px; }
       .intro-hero p:not(.eyebrow) { font-size: 14px; }
+      .hero-marquee { display: none; }
+      .hero-meta { max-width: 260px; font-size: 10px; }
       .step-list, .summary-grid { grid-template-columns: 1fr; }
       .step-list li, .summary-grid article { min-height: 96px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-marquee > div { animation: none; }
     }
   </style>
 </head>
@@ -80,10 +94,16 @@
 
   <main>
     <section class="intro-hero" aria-labelledby="intro-title">
+      <div class="hero-stars" aria-hidden="true"></div>
+      <div class="hero-energy" aria-hidden="true"></div>
       <p class="eyebrow">PRECOURSE PRACTICE</p>
       <h1 id="intro-title">Woowa Practice</h1>
       <p>GitHub 저장소를 제출해 프리코스 과제를 검증하세요.</p>
+      <p class="hero-meta">GITHUB SUBMISSION / SANDBOX GRADING / PASS OR FAIL</p>
       <a class="primary-link" href="/problems.html">문제 풀러가기</a>
+      <div class="hero-marquee" aria-hidden="true">
+        <div>WOOWA PRACTICE // PRECOURSE REVIEW // WOOWA PRACTICE // PRECOURSE REVIEW //</div>
+      </div>
     </section>
 
     <section class="content-section" aria-labelledby="how-title">
