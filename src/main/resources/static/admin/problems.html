@@ -430,6 +430,15 @@
     return element;
   }
 
+  function safeWebUrl(value) {
+    try {
+      const url = new URL(value);
+      return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
   function renderProblemList() {
     problemList.replaceChildren();
     problemCount.textContent = String(state.problems.length);
@@ -487,11 +496,16 @@
       const term = makeTextElement('dt', label);
       const description = document.createElement('dd');
       if (type === 'link') {
-        const link = makeTextElement('a', value);
-        link.href = value;
-        link.target = '_blank';
-        link.rel = 'noreferrer';
-        description.append(link);
+        const url = safeWebUrl(value);
+        if (url) {
+          const link = makeTextElement('a', value);
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noreferrer';
+          description.append(link);
+        } else {
+          description.textContent = '유효하지 않은 저장소 URL';
+        }
       } else {
         description.textContent = value;
       }
@@ -524,15 +538,12 @@
       state.selectedProblem = problems.find((problem) => problem.slug === preferredSlug) || null;
       renderProblemList();
       renderSelectedProblem();
+      return true;
     } catch (error) {
-      state.problems = [];
-      state.selectedProblem = null;
-      problemCount.textContent = '0';
-      versionSection.hidden = true;
-      versionForm.hidden = true;
       const message = makeTextElement('p', error.message);
       message.className = 'list-state error';
       problemList.replaceChildren(message);
+      return false;
     }
   }
 
@@ -557,7 +568,10 @@
       problemForm.elements.javaVersion.value = 21;
       problemForm.elements.version.value = 1;
       setFeedback(createResult, `${created.slug} v${created.version}을(를) 등록했습니다.`, 'success');
-      await loadProblems(created.slug);
+      const refreshed = await loadProblems(created.slug);
+      if (!refreshed) {
+        setFeedback(createResult, `${created.slug} v${created.version}을(를) 등록했습니다. 목록은 새로고침 후 확인해 주세요.`, 'success');
+      }
     } catch (error) {
       setFeedback(createResult, error.message, 'error');
     } finally {
@@ -586,8 +600,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      await loadProblems(published.slug);
-      setFeedback(versionResult, `v${published.version}을(를) 발행했습니다.`, 'success');
+      const refreshed = await loadProblems(published.slug);
+      const message = refreshed
+        ? `v${published.version}을(를) 발행했습니다.`
+        : `v${published.version}을(를) 발행했습니다. 목록은 새로고침 후 확인해 주세요.`;
+      setFeedback(versionResult, message, 'success');
     } catch (error) {
       setFeedback(versionResult, error.message, 'error');
     } finally {
